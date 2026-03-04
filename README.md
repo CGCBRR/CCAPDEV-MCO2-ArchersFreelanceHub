@@ -3,7 +3,8 @@
 CCAPDEV-MCO2-ArchersFreelanceHub/
 │
 ├── client/                                      # React frontend application
-│   ├── public/                                   # Static assets served directly (images, index.html)
+│   ├── public/                                   # Static assets served directly
+│   │   └── assets/                                # Images, logos, icons, fonts
 │   ├── src/                                       # Main source code folder
 │   │   ├── components/                             # Reusable UI pieces (buttons, cards, navbar)
 │   │   ├── pages/                                  # Full page components (Landing, Login, Dashboard)
