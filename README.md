@@ -14,10 +14,11 @@ CCAPDEV-MCO2-ArchersFreelanceHub/
 │   └── package.json                                # Frontend dependencies and scripts
 │
 ├── server/                                      # Express backend application
+│   ├── models/                                    # MongoDB schemas (User, Listing, Application)
 │   ├── controllers/                               # Business logic for each route
 │   ├── routes/                                    # API endpoint definitions
 │   ├── middleware/                                 # Interceptors (auth, validation, error handling)
-│   ├── database/                                   # Database connection and SQL files
+│   ├── database/                                   # MongoDB connection setup
 │   └── package.json                                # Backend dependencies and scripts
 │
 ├── .gitignore                                      # Files to exclude from git
