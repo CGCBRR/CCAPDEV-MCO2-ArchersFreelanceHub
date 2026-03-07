@@ -1,5 +1,6 @@
 # CCAPDEV-MCO2-ArchersFreelanceHub
 
+```
 CCAPDEV-MCO2-ArchersFreelanceHub/
 │
 ├── client/                                      # React frontend application
@@ -23,3 +24,4 @@ CCAPDEV-MCO2-ArchersFreelanceHub/
 │
 ├── .gitignore                                      # Files to exclude from git
 └── README.md                                       # Project overview and setup instructions
+```
