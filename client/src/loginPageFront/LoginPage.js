@@ -5,7 +5,8 @@ function LoginPage() {
   const [activeTab, setActiveTab] = useState('login');
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    username: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
@@ -40,6 +41,12 @@ function LoginPage() {
       return;
     }
 
+    // Validate username for create account
+    if (activeTab === 'create' && !formData.username.trim()) {
+      setMessage({ type: 'error', text: 'Username is required' });
+      return;
+    }
+
     try {
       const endpoint = activeTab === 'login' ? 'login' : 'register';
       const response = await fetch(`http://localhost:5000/api/${endpoint}`, {
@@ -60,7 +67,7 @@ function LoginPage() {
           // You can redirect here if needed
           // window.location.href = '/homepage';
         } else {
-          setFormData({ email: '', password: '' });
+          setFormData({ email: '', password: '', username: '' });
           setActiveTab('login');
         }
       } else {
@@ -117,6 +124,21 @@ function LoginPage() {
           )}
 
           <form className="login-form" onSubmit={handleSubmit}>
+            {/* Username field - only shows for Create Account tab */}
+            {activeTab === 'create' && (
+              <div className="input-group">
+                <label>Username</label>
+                <input 
+                  type="text" 
+                  name="username"
+                  placeholder="Choose a username" 
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required 
+                />
+              </div>
+            )}
+
             <div className="input-group">
               <label>DLSU Email</label>
               <input 

@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  username: { 
+    type: String, 
+    unique: true 
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -47,7 +51,7 @@ const User = mongoose.model('User', userSchema);
 // Register (Create Account)
 app.post('/api/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
 
     // Validate DLSU email format
     if (!isValidDLSUEmail(email)) {
@@ -66,14 +70,18 @@ app.post('/api/register', async (req, res) => {
     // Create new user
     const user = new User({
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      username
     });
 
     await user.save();
 
     res.status(201).json({ 
       message: 'Account created successfully!',
-      user: { email: user.email }
+      user: { 
+        email: user.email,
+        username: user.username
+      }
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -105,7 +113,10 @@ app.post('/api/login', async (req, res) => {
 
     res.json({ 
       message: 'Login successful!',
-      user: { email: user.email }
+      user: { 
+        email: user.email,
+        username: user.username
+      }
     });
   } catch (error) {
     console.error('Login error:', error);
