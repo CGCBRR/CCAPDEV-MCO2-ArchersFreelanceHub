@@ -1,8 +1,6 @@
 /* ========== HEADER.CSS ========== */
 .header {
-    display: grid;
-    width: 100vw;   /* Fill viewport width */
-    grid-template-columns: 2fr auto;
+    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: var(--space-4) var(--space-8);
@@ -65,15 +63,10 @@
     padding: var(--space-2) 0;
 }
 
-.nav-link:hover,
-.nav-link.active {
+.nav-link:hover  {
     color: var(--white);
 }
 
-.nav-link.active {
-    font-weight: 600;
-    border-bottom: 2px solid var(--white);
-}
 
 /* Header Right */
 .header-right {
