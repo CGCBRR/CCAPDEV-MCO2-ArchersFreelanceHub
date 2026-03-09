@@ -1,0 +1,200 @@
+/* ========== FEATURED.CSS ========== */
+/* Featured freelancers section and cards */
+
+.featured-section {
+    background: var(--gray-50);
+    padding: 80px var(--container-padding);
+}
+
+.freelancers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: var(--space-8);
+    max-width: var(--container-max);
+    margin: 0 auto;
+}
+
+/* Freelancer Card */
+.freelancer-card {
+    background: var(--white);
+    border-radius: var(--radius-xxl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    border: 1px solid var(--border-light);
+}
+
+.freelancer-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-green);
+    border-color: var(--green-primary);
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-5);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-circle);
+    object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: var(--shadow-sm);
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.user-meta {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+/* Stats Row */
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-5) 0;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: var(--space-5);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+/* Bio */
+.freelancer-bio {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: var(--space-5);
+    line-height: 1.6;
+}
+
+/* Portfolio Grid */
+.portfolio-grid {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+    overflow-x: auto;
+    padding-bottom: var(--space-2); 
+    scrollbar-width: thin; 
+    scrollbar-color: var(--green-primary) var(--gray-200); 
+}
+
+.portfolio-grid img {
+    width: 80px; 
+    height: 80px; 
+    flex-shrink: 0; 
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.portfolio-grid:has(img:first-child:nth-last-child(3)) img {
+    flex: 1 0 0;
+}
+
+.portfolio-grid:has(img:first-child:nth-last-child(2)) img {
+    flex: 1 0 0;
+}
+
+.portfolio-grid:has(img:first-child:nth-last-child(1)) img {
+    flex: 1 0 0;
+}
+
+.portfolio-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.portfolio-grid::-webkit-scrollbar-track {
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+}
+
+.portfolio-grid::-webkit-scrollbar-thumb {
+    background: var(--green-primary);
+    border-radius: var(--radius-full);
+    cursor: grab;
+}
+
+.portfolio-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--green-dark);
+}
+
+.portfolio-grid::-webkit-scrollbar-thumb:active {
+    cursor: grabbing;
+}
+
+.portfolio-grid img:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Card Actions */
+.card-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.action-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-family: 'Inter', sans-serif;
+    transition: all var(--transition-fast);
+}
+
+.message-btn {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.message-btn:hover {
+    background: var(--gray-200);
+}
+
+.hire-btn {
+    background: var(--green-gradient);
+    color: var(--white);
+    box-shadow: var(--shadow-green);
+}
+
+.hire-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-green-hover);
+}

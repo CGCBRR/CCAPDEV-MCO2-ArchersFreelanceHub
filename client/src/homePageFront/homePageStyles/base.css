@@ -1,0 +1,199 @@
+/* ========== BASE.CSS ========== */
+/* Global resets, variables, and base typography */
+
+/* GLOBAL RESET */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* CSS Variables for consistent theming */
+:root {
+    /* Primary Colors - DLSU Green Palette */
+    --green-primary: #006937;
+    --green-dark: #004d08;
+    --green-light: #008c47;
+    --green-gradient: linear-gradient(135deg, #006937 0%, #008c47 100%);
+    --green-soft-bg: rgba(0, 105, 55, 0.1);
+    
+    /* Neutral Colors */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    
+    /* Semantic Colors */
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --border-light: #e2e8f0;
+    --success: #10b981;
+    --white: #ffffff;
+    
+    /* Shadows */
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-green: 0 8px 20px rgba(0, 105, 55, 0.15);
+    --shadow-green-hover: 0 12px 28px rgba(0, 105, 55, 0.25);
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-xxl: 32px;
+    --radius-full: 100px;
+    --radius-circle: 50%;
+    
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Container Max Width */
+    --container-max: 1400px;
+    --container-padding: 40px;
+}
+
+/* Base Body Styles */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    line-height: 1.5;
+    background-color: var(--gray-50);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--gray-900);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+}
+
+/* Utility Classes */
+.container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: var(--space-12);
+}
+
+.section-tag {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green-primary);
+    letter-spacing: 1px;
+    margin-bottom: var(--space-2);
+    display: block;
+}
+
+.section-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--green-dark);
+    letter-spacing: -1px;
+}
+
+.view-all {
+    color: var(--green-primary);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    padding-bottom: var(--space-1);
+    border-bottom: 2px solid transparent;
+}
+
+.view-all:hover {
+    border-bottom-color: var(--green-primary);
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+    width: fit-content;
+}
+
+.badge-green {
+    background: var(--green-soft-bg);
+    color: var(--green-primary);
+    padding: 6px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: var(--radius-full);
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

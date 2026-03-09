@@ -1,0 +1,87 @@
+/* ========== CATEGORIES.CSS ========== */
+/* Categories section and category cards */
+
+.categories-section {
+    background: var(--white);
+    padding: 80px var(--container-padding);
+}
+
+.categories-wrapper {
+    position: relative;
+    overflow: visible;
+}
+
+.categories-grid {
+    display: flex;
+    gap: var(--space-6);
+    max-width: var(--container-max);
+    margin-top: 20px;
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+}
+
+/* Category Card */
+.category-card {
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8) var(--space-6);
+    text-align: center;
+    transition: all var(--transition-base);
+    flex: 0 0 220px;
+}
+
+.category-card:hover {
+    /* === TRANSFORMING UP ANIMATION === */
+    /* transform: translateY(-6px); */
+    /* box-shadow: var(--shadow-green); */
+    /* ================================= */
+
+    /* ========= JUST SHADOWS ========= */
+    box-shadow: 0 12px 24px rgba(0,128,0,0.3);
+    /* ================================= */
+    border-color: var(--green-primary);
+    position: relative;
+    z-index: 10;
+}
+
+.category-icon {
+    font-size: 48px;
+    margin-bottom: var(--space-5);
+}
+
+.category-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.category-card p {
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+
+/* Categories Scrollbar */
+.categories-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.categories-grid::-webkit-scrollbar-track {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 10px;
+}
+
+.categories-grid::-webkit-scrollbar-thumb {
+    background: var(--green-primary);
+    border-radius: 10px;
+    cursor: grab;
+}
+
+.categories-grid::-webkit-scrollbar-thumb:active {
+    cursor: grabbing;
+}

@@ -1,0 +1,14 @@
+/* main.css - Archer's Freelance Hub Homepage Styles */
+/* Author: UI/UX Designer */
+/* Version: 1.0 */
+
+@import url('base.css');
+@import url('header.css');
+@import url('hero.css');
+@import url('categories.css');
+@import url('featured.css');
+@import url('cta.css');
+@import url('popup.css');
+@import url('popupreviews.css');
+@import url('responsive.css');
+@import url('footer.css');

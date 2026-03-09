@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import './LoginPage.css';
 
 function LoginPage() {
@@ -11,6 +12,7 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [emailError, setEmailError] = useState('');
+  const navigate = useNavigate();
 
   // Function to validate DLSU email
   const isValidDLSUEmail = (email) => {
@@ -63,8 +65,9 @@ function LoginPage() {
         setMessage({ type: 'success', text: data.message });
         if (activeTab === 'login') {
           localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
           console.log('Login successful:', data.user);
-          window.location.href = '/homepage';
+          navigate("/homepage");
         } else {
           setFormData({ email: '', password: '', username: '' });
           setActiveTab('login');
