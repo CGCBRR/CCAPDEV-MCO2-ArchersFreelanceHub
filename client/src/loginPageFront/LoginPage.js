@@ -64,8 +64,7 @@ function LoginPage() {
         if (activeTab === 'login') {
           localStorage.setItem('user', JSON.stringify(data.user));
           console.log('Login successful:', data.user);
-          // You can redirect here if needed
-          // window.location.href = '/homepage';
+          window.location.href = '/homepage';
         } else {
           setFormData({ email: '', password: '', username: '' });
           setActiveTab('login');
