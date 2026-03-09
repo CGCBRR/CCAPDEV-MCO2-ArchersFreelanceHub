@@ -62,12 +62,6 @@ const userProfileSchema = new mongoose.Schema({
     type: String,
     maxlength: 200
   },
-  location: {
-    type: String,
-  },
-  website: { 
-    type: String 
-  },
   profileimage: { 
     type: String 
   },
