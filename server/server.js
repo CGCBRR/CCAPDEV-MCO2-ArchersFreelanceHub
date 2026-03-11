@@ -375,11 +375,11 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
 app.get('/api/get-services', authenticateToken, async (req, res) => {
   try {
     // Get all users
-    const serviceSchema = await Service.find().populate('userid', 'username').limit(10);
+    const serviceSchema = await Service.find().populate('userid', 'username');
     
     const services = serviceSchema.map(service => ({
       userid: {
-        username: service.username,
+        username: service.userid.username,
         _id: service.userid._id
       },
       title: service.title,
