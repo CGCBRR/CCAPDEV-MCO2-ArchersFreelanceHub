@@ -45,18 +45,12 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-const User = mongoose.model('User', userSchema);
-
 // User Profile Schema
 const userProfileSchema = new mongoose.Schema({
   userid: {
     type: mongoose.Schema.Types.ObjectId, // Foreign Key
     ref: "User", // Reference to User Schema
     required: true
-  },
-  username: { 
-    type: String, 
-    unique: true 
   },
   bio: {
     type: String,
@@ -83,6 +77,70 @@ const userProfileSchema = new mongoose.Schema({
   }
 });
 
+// Service schema - contains the list of services posted by freelancers. Each service is linked to a freelancer (user).
+// This will be used in the freelancer's dashboard to show the list of services they have posted and their details 
+// (title, category, description, starting price, delivery time, experience level, etc.)
+const serviceSchema = new mongoose.Schema({
+  userid: {
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "User",                          // reference to User collection
+    required: true
+  },
+  title: { type: String, required: true },
+  category: { type: String, required: true },
+  description: { type: String, required: true, maxlength: 2000 },
+  startingprice: { type: Number, required: true },
+  pricetype: { type: String, required: true },
+  deliverytime: { type: String, required: true },
+  experiencelevel: { type: String, required: true },
+  image: [{ type: String }]
+});
+
+// Projects schema - contains the list of projects posted by hirers and assigned to freelancers. 
+// Each project is linked to a service and a hirer (user).
+const projectSchema = new mongoose.Schema({
+  userid: {                               // this is the freelancer assigned to the project
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "User",                          // reference to User collection
+    required: true
+  },
+  hirerid: {                              // this is the hirer who posted the project
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "User",                          // reference to User collection
+    required: true
+  },
+  serviceid: {                            // this is the service that the project is based on
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "Service",                       // reference to Service collection
+    required: true
+  },
+  title: { type: String, required: true },
+  description: { type: String, required: true, maxlength: 2000 },
+  budget: { type: Number, required: true },
+  deadline: { type: Date, required: true },
+  status: { type: String, default: "open" },
+  rating: { type: Number, default: 0 },
+  projectimages: [{ type: String }]
+});
+
+// Add the virtual schema Projects to User schema
+// Used to connect yung projects with the same userid as UserProfile (done with mongoose .populate(), research nalang)
+userProfileSchema.virtual("projects", { 
+  ref: "Project",
+  localField: "userid",
+  foreignField: "userid"
+});
+
+// Ensure virtuals are included when converting to JSON
+userProfileSchema.set('toObject', { virtuals: true });
+userProfileSchema.set('toJSON', { virtuals: true });
+
+// Compile Models
+const User = mongoose.model('User', userSchema);
+const UserProfile = mongoose.model("UserProfile", userProfileSchema);
+const Service = mongoose.model("Service", serviceSchema);
+const Project = mongoose.model("Project", projectSchema);
+
 // Middleware to verify token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -92,7 +150,7 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET || 'carlokumag', (err, user) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid or expired token.' });
     }
@@ -284,22 +342,27 @@ app.get('/api/get-statistics', authenticateToken, async (req, res) => {
 app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
   try {
     // Get all user profiles
-    const profiles = await UserProfile.find().populate('userid', 'email').limit(10);
+    const profiles = await UserProfile.find().populate('userid', 'username');
     
-    const freelancers = profiles.map(profile => ({
-      userid: {
-        username: profile.username,
-        _id: profile.userid._id
-      },
-      firstname: profile.username?.split('_')[0] || 'First',
-      lastname: profile.username?.split('_')[1] || 'Last',
-      profileimage: profile.profileimage,
-      totalearned: profile.totalearned || 0,
-      totalprojects: profile.totalprojects || 0,
-      averagerating: profile.averagerating || 0,
-      bio: profile.bio || `DLSU student passionate about freelancing.`,
-      projects: [] // Add actual projects if you have them
-    }));
+    const freelancers = profiles.map(profile => {
+      const fullName = profile.userid.username || '';
+      const [firstname, ...rest] = fullName.split(' ');
+      const lastname = rest.join(' ');  // handles multiple words
+      return { 
+        userid: {
+          username: fullName,
+          _id: profile.userid._id
+        },
+        firstname: firstname || 'First',
+        lastname: lastname || 'Last',
+        profileimage: profile.profileimage,
+        totalearned: profile.totalearned || 0,
+        totalprojects: profile.totalprojects || 0,
+        averagerating: profile.averagerating || 0,
+        bio: profile.bio || `DLSU student passionate about freelancing.`,
+        projects: [] // Add actual projects if you have them
+      };
+    });
     
     res.json(freelancers);
   } catch (error) {
@@ -307,6 +370,67 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// Get Services
+app.get('/api/get-services', authenticateToken, async (req, res) => {
+  try {
+    // Get all users
+    const serviceSchema = await Service.find().populate('userid', 'username').limit(10);
+    
+    const services = serviceSchema.map(service => ({
+      userid: {
+        username: service.username,
+        _id: service.userid._id
+      },
+      title: service.title,
+      category: service.category,
+      description: service.description,
+      startingprice: service.startingprice,
+      pricetype: service.pricetype,
+      deliverytime: service.deliverytime,
+      experiencelevel: service.experiencelevel,
+      image: []
+    }));
+    
+    res.json(services);
+  } catch (error) {
+    console.error('Services error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+// *****************************************************************************************************************
+// Post a Service
+// *****************************************************************************************************************
+// Post Service
+app.post("/api/addservice", authenticateToken, async (req, res) => {
+  const { title, category, description, startingprice, pricetype, deliverytime, experiencelevel, Image } = req.body;
+  const userid = req.user.userId; // get userid from token
+  const service = new Service({ 
+        userid: userid, title: title, category: category, 
+        description: description, startingprice: startingprice, pricetype: pricetype, 
+        deliverytime: deliverytime, experiencelevel: experiencelevel, image: Image });
+
+  try {
+    await service.save();
+    res.json({ message: "Service posted successfully!" });
+  } catch (err) {
+    console.error("Error posting service:", err);
+    console.log("Received data:", { userid, title, category, description, startingprice, pricetype, deliverytime, experiencelevel, Image });
+    res.status(500).json({ message: "Error posting service. " + err.message });
+  }
+});
+
+// Get the list of projects posted by the hirer (user)
+// This will be used in the hirer's dashboard to show the list of projects they have posted and their status (open, assigned, completed)
+app.get("/api/get-hirer-projects", authenticateToken, async (req, res) => {
+  const userid = new mongoose.Types.ObjectId(req.user.userId); // get userid from token - this is the hirer
+
+  const projects = await Project.find({ hirerid: userid }).populate("serviceid").populate("userid", "username");
+  res.json(projects);
+});
+
 
 // Test route
 app.get('/api/test', (req, res) => {

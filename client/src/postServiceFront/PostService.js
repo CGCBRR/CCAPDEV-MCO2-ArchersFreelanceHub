@@ -13,9 +13,9 @@ const PostService = () => {
   const [serviceCategory, setServiceCategory] = useState("");
   const [serviceDesc, setServiceDesc] = useState("");
   const [startingPrice, setStartingPrice] = useState("");
-  const [priceType, setPriceType] = useState("");
-  const [deliveryTime, setDeliveryTime] = useState("");
-  const [experienceLevel, setExperienceLevel] = useState("");
+  const [priceType, setPriceType] = useState("fixed");
+  const [deliveryTime, setDeliveryTime] = useState("1-2");
+  const [experienceLevel, setExperienceLevel] = useState("entry");
   const [workSamples, setWorkSamples] = useState([]);
 
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ const PostService = () => {
       const res = await axios.post("http://localhost:5000/api/addservice", 
         { title: serviceTitle, category: serviceCategory, description: serviceDesc, 
           startingprice: startingPrice, pricetype: priceType, deliverytime: deliveryTime, 
-          experiencelevel: experienceLevel, Image: workSamples },
+          experiencelevel: experienceLevel, image: workSamples },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }},
       );
 
@@ -65,7 +65,7 @@ const PostService = () => {
       alert("Succesfully posted your service! It will now be visible to potential clients.");
       navigate("/homepage"); // redirect to homepage
     } catch (err) {
-      setMessage(err.response.data.message);
+      setMessage(err.response?.data?.message || "Something went wrong");
     }
   }
 
@@ -169,22 +169,22 @@ const PostService = () => {
                                 <option value="" disabled="" selected="">
                                     Select a category
                                 </option>
-                                <option value="visual-arts" selected="">
+                                <option value="Visual Arts" selected="">
                                     🎨 Visual Arts (Design, Illustration, Photography)
                                 </option>
-                                <option value="academic">
+                                <option value="Academic">
                                     📚 Academic Help (Tutoring, Research, Editing)
                                 </option>
-                                <option value="video">
+                                <option value="Video">
                                     🎬 Video Editing (Production, Post-processing)
                                 </option>
-                                <option value="programming">
+                                <option value="Programming">
                                     💻 Programming (Web Dev, Mobile Apps, Software)
                                 </option>
-                                <option value="marketing">
+                                <option value="Marketing">
                                     📊 Marketing (Social Media, SEO, Content)
                                 </option>
-                                <option value="music">
+                                <option value="Music">
                                     🎵 Music &amp; Audio (Production, Mixing, Voice-over)
                                 </option>
                             </select>
@@ -234,9 +234,7 @@ const PostService = () => {
                                     defaultValue="fixed"
                                     value={priceType} 
                                     onChange={(e) => setPriceType(e.target.value)}>
-                                    <option value="fixed" selected="">
-                                    Fixed Price
-                                    </option>
+                                    <option value="fixed" selected="">Fixed Price</option>
                                     <option value="hourly">Hourly Rate</option>
                                     <option value="negotiable">Negotiable</option>
                                 </select>

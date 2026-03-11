@@ -15,6 +15,7 @@ const Homepage = () => {
     averageRating: 0
   });
   const [freelancers, setFreelancers] = useState([]);
+  const [services, setServices] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,6 +77,19 @@ const Homepage = () => {
         }
     };
     fetchFreelancers();
+
+    // Fetch lists of freelancers ordered by rating, earned, and projects completed (for featured section)
+    const fetchServices = async () => {
+        try {
+        const rest = await axios.get("http://localhost:5000/api/get-services", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setServices(rest.data);
+        } catch (err) {
+        console.error("Error fetching services:", err);
+        }
+    };
+    fetchServices();
   }, []);
 
   const handleSignOut = () => {
@@ -318,6 +332,68 @@ const Homepage = () => {
                             {freelancer.projects.map((project, idx) => (
                                 <img key={idx} src={project.projectimages[0]} alt={"No Project Portfolio"} />
                             ))}
+                        </div>
+
+                        <div className="card-actions">
+                            <button className="action-btn hire-btn" onClick={(e) => {
+                                e.stopPropagation();
+                                // Your hire logic here
+                            }}>
+                                Hire Now
+                            </button>
+                        </div> 
+                    </div>
+                ))}
+            </div>
+          </section>
+
+          {/* FEATURED SERVICES */}
+          <section className="featured-section">
+            <div className="section-header">
+              <div>   
+                <span className="section-tag">FEATURED</span>
+                <h2 className="section-title">Top services this week</h2>
+              </div>
+              <a href="#" className="view-all">View all →</a>
+            </div>
+
+            <div className="freelancers-grid">
+                {/* Loop through all Freelancers */}
+                {services.map((service, index) => (
+                    <div key={index} className="freelancer-card" onClick={() => openPopup()}>
+                        <div className="card-header">
+                            <div className="user-info">
+                                <img src={service.image || profile} alt={service.userid.username} className="user-avatar" />
+                                <div>
+                                    <h3 className="user-name">{service.title}</h3>
+                                    <p className="user-meta">{service.userid.username}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="stats-row">
+                            <div className="stat">
+                                <span className="stat-value">${service.startingprice.toFixed(2)}</span>
+                                <span className="stat-label">Price</span>
+                            </div>
+                            <div className="stat">
+                                <span className="stat-value">{service.category}</span>
+                                <span className="stat-label">Category</span>
+                            </div>
+                            <div className="stat">
+                                <span className="stat-value">{service.deliverytime}</span>
+                                <span className="stat-label">Delivery Time</span>
+                            </div>
+                        </div>
+
+                        <p className="freelancer-bio">
+                            {service.description || "No description available."}
+                        </p>
+
+                        {/* Portfolio images - for demo purposes, using static images */}
+                        { /* Loop through freelancer's projects and display their images here. */ }
+                        <div className="portfolio-grid">
+                            <img key={index} src={service.image} alt={"No Work Samples"} />
                         </div>
 
                         <div className="card-actions">
