@@ -317,3 +317,13 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+//update profile WIP
+app.post('/api/editProfile', async (req, res) => {
+  await User.findOneAndUpdate(
+    { userid: req.params.userid },
+    req.body,
+    { new: true }
+  );
+  res.redirect('/api/profile' );
+});
