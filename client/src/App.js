@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoginPage from './loginPageFront/LoginPage';
 import Homepage from './homePageFront/HomePage';
 import PostService from './postServiceFront/PostService';
+import ProfilePage from './profilePageFront/profilePage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,6 +24,7 @@ function App() {
           element={isAuthenticated  ? <Homepage /> : <Navigate to="/" />} 
         />
         <Route path="/postservice" element={<PostService />} />
+        <Route path="/my-projects" element={<ProfilePage />} />
       </Routes>
     </Router>
   );

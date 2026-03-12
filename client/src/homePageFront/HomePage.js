@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./homePageStyles/main.css"
 import logo2 from './images/logo2.png';
 import profile from "./images/profile.jpg";
@@ -132,9 +132,9 @@ const Homepage = () => {
             <a href="homepage.html" className="nav-link active">
               Browse
             </a>
-            <a href="profile.html" className="nav-link">
+            <Link to="/my-projects" className="nav-link">
               My Projects
-            </a>
+            </Link>
           </nav>
           <div className="header-right">
             <button
@@ -203,7 +203,7 @@ const Homepage = () => {
                     </svg>
                     <input
                       type="text"
-                      placeholder="Search for services, freelancers, or skills..."
+                      placeholder="Search for services..."
                     />
                   </div>
                   <button className="search-btn">Search</button>

@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import './'; // Fill this in with the profilePage css files
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import "./profilePageStyles/main.css"
+import logo2 from './images/logo2.png';
+import profile from "./images/profile.jpg";
 
-const profilePage = () => {
+const ProfilePage = () => {
     
-    useEffect(() => {
+    const [message, setMessage] = useState("");
+    const [userProfile, setUserProfile] = useState(null);
+    const [user, setUser] = useState(null);
+    const [userServices, setUserServices] = useState([]);
+    const [servicesLoading, setServicesLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate(); 
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
 
     const verifyToken = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/verify-token", {
+         await axios.get("http://localhost:5000/api/verify-token", {
           headers: { Authorization: `Bearer ${token}` },
         });
         // setMessage(res.data.message);
@@ -26,29 +37,106 @@ const profilePage = () => {
 
     // Fetch user profile data 
     const fetchUserProfile = async () => {
-      try {
+        setLoading(true);
+        try {
         const res = await axios.get("http://localhost:5000/api/get-profile", {
-          headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         setUserProfile(res.data);
-        console.log("Fetched user profile:", res.data);
-      } catch (err) {
-        console.error("Error fetching user profile:", err);
-      }
+        setUser({
+            createdAt: res.data.createdAt || new Date().toLocaleDateString(),
+            ...res.data
+        });
+            console.log("Fetched user profile:", res.data);
+        } catch (err) {
+            console.error("Error fetching user profile:", err);
+            setMessage("Error fetching profile");
+        } finally {
+            setLoading(false);
+        }
     };
-    fetchUserProfile();
-    }, []);
 
-    const handleSignOut = () => {
+    // Fetch user's services
+    const fetchUserServices = async () => {
+        setServicesLoading(true);
+        try {
+            const res = await axios.get("http://localhost:5000/api/get-my-services", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setUserServices(res.data);
+            console.log("Fetched user services:", res.data);
+        } catch (err) {
+            console.error("Error fetching user services:", err);
+        } finally {
+            setServicesLoading(false);
+        }
+    };
+
+    verifyToken();
+    fetchUserProfile();
+    fetchUserServices();
+}, [navigate]);
+
+const handleSignOut = () => {
     localStorage.removeItem("token"); // clear JWT
     navigate("/"); // redirect to login page
-  };
+};
+
+const handlePostService = () => {
+    navigate("/postservice"); // redirect to post service page
+};
+
+const handleEditService = (serviceId) => {
+    navigate(`/edit-service/${serviceId}`);
+};
+
+const handleDeleteService = async (serviceId) => {
+    if (window.confirm("Are you sure you want to delete this service?")) {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`http://localhost:5000/api/delete-service/${serviceId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Refresh services list
+            setUserServices(userServices.filter(service => service._id !== serviceId));
+        } catch (err) {
+            console.error("Error deleting service:", err);
+            alert("Failed to delete service");
+        }
+    }
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return "Recent";
+    return new Date(dateString).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long' 
+    });
+};
+
+// SHOW LOADING STATE
+if (loading) {
+    return (
+        <div className="loading-container">
+            <div className="loading-spinner">Loading profile...</div>
+        </div>
+    );
+}
+
+// SHOW ERROR IF NO PROFILE
+if (!userProfile) {
+    return (
+        <div className="error-container">
+            <div className="error-message">Failed to load profile</div>
+            <button onClick={() => window.location.reload()}>Refresh</button>
+        </div>
+    );
+}
+
 
     return (
         <>
         <div className="head-container">
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Archer's Freelance Hub | Find DLSU Talent</title>
         </div>
 
@@ -92,7 +180,11 @@ const profilePage = () => {
                     onClick={() => (window.location.href = "profile.html")}
                     style={{ cursor: "pointer" }}
                 >
-                    <img src={profile} alt="Profile" />
+                    <img 
+                        src={userProfile?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} 
+                        alt="Profile" 
+                        className="profile-avatar"
+                    />
                     <span className="online-indicator" />
                 </div>
                 </div>
@@ -100,20 +192,24 @@ const profilePage = () => {
 
             <main>
                 {/*Profile Cover Section -->*/}
-                <section class="profile-cover">
-                    <div class="cover-image"></div>
+                <section className="profile-cover">
+                    <div className="cover-image"></div>
                     
-                    <div class="profile-header">
-                        <div class="profile-avatar-wrapper">
-                            <img src="../../images/jb.jpg" alt="Jean-Baptist De La Salle" class="profile-avatar"/>
+                    <div className="profile-header">
+                        <div className="profile-avatar-wrapper">
+                            <img 
+                                src={userProfile?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} 
+                                alt="Profile" 
+                                className="profile-avatar"
+                            />
                         </div>
                         {/*<!-- Container for both button groups --> */}
                         
-                        <div class="profile-header-right">
+                        <div className="profile-header-right">
                             {/*<!-- Admin Button in its own container --> */}
                             
-                            <div class="profile-actions admin-container">
-                                <button class="btn-admin" onclick="window.location.href='admin-dashboard.html'">
+                            <div className="profile-actions admin-container">
+                                <button className="btn-admin" onclick="window.location.href='admin-dashboard.html'">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                         <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"/>
                                         <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"/>
@@ -124,14 +220,14 @@ const profilePage = () => {
                             </div>
 
                             {/*<!-- Edit Profile and Share in their own container --> */}
-                            <div class="profile-actions">
-                                <button class="btn-primary" id="editBtn">
+                            <div className="profile-actions">
+                                <button className="btn-primary" id="editBtn">
                                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                         <path d="M13 7L9 11L5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                     Edit Profile
                                 </button>
-                                <button class="btn-secondary">
+                                <button className="btn-secondary">
                                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                         <path d="M14 10V14C14 15.1 13.1 16 12 16H4C2.9 16 2 15.1 2 14V6C2 4.9 2.9 4 4 4H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                         <path d="M10 2H16V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -145,129 +241,134 @@ const profilePage = () => {
                 </section>
 
                 {/* <!-- Profile Info Section -->*/}
-                <section class="profile-info" >
-                    <div class="info-main">
-                        <h1 class="profile-name" id="profileName">{userProfile.username}</h1>
-                        <p class="profile-tagline" id="profileTagline">tagline :|</p>
+                <section className="profile-info" >
+                    <div className="info-main">
+                        <h1 className="profile-name" id="profileName">{userProfile.username}</h1>
+                        <p className="profile-tagline" id="profileTagline">tagline :|</p>
                         
-                        <div class="profile-meta">
-                            <div class="meta-item">
-                                <span class="meta-label">Member since</span>
-                                <span class="meta-value">{user.createdAt}</span>
+                        <div className="profile-meta">
+                            <div className="meta-item">
+                                <span className="meta-label">Member since</span>
+                                <span className="meta-value">{formatDate(user?.createdAt)}</span>
                             </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Location</span>
-                                <span class="meta-value" id="location">Manila, Philippines</span>
+                            <div className="meta-item">
+                                <span className="meta-label">Location</span>
+                                <span className="meta-value" id="location">{userProfile?.location || "Manila, Philippines"}</span>
                             </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Languages</span>
-                                <span class="meta-value"id="language">English, Filipino</span>
+                            <div className="meta-item">
+                                <span className="meta-label">Languages</span>
+                                <span className="meta-value"id="language">{userProfile?.languages || "English, Filipino"}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="profile-stats">
-                        <div class="stat-card">
-                            <span class="stat-number"id="projectNum">{userProfile.totalprojects}</span>
-                            <span class="stat-label">Projects</span>
+                    <div className="profile-stats">
+                        <div className="stat-card">
+                            <span className="stat-number"id="projectNum">{userProfile.totalprojects}</span>
+                            <span className="stat-label">Projects</span>
                         </div>
-                        <div class="stat-card">
-                            <span class="stat-number"id="ratingNum">{userProfile.averagerating}</span>
-                            <span class="stat-label">Rating</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">234</span>
-                            <span class="stat-label">Followers</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">89</span>
-                            <span class="stat-label">Following</span>
+                        <div className="stat-card">
+                            <span className="stat-number"id="ratingNum">{userProfile.averagerating}</span>
+                            <span className="stat-label">Rating</span>
                         </div>
                     </div>
 
-                    <div class="profile-bio" >
+                    <div className="profile-bio" >
                         <h3>About</h3>
                         <p id = "profileBio">{userProfile.bio}</p>
                     </div>
                 </section>
 
-                {/*<!-- Skills Section --> */}
-                <section class="skills-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Skills & Expertise</h2>
-                        <a href="#" class="view-all">Add skills +</a>
-                    </div>
-                    
-                    <div class="skills-grid">
-                        <span class="skill-tag">Curriculum Design</span>
-                        <span class="skill-tag">Educational Leadership</span>
-                        <span class="skill-tag">Teacher Training</span>
-                        <span class="skill-tag">Program Development</span>
-                        <span class="skill-tag">Academic Writing</span>
-                        <span class="skill-tag">Mentoring</span>
-                    </div>
-                </section>
-
                 {/* <!-- Portfolio/Posts Section -->*/}
-                <section class="portfolio-section"id="portfolioSect">
-                    <div class="section-header">
+                <section className="portfolio-section"id="portfolioSect">
+                    <div className="section-header">
                         <div>
-                            <span class="section-tag">PORTFOLIO</span>
-                            <h2 class="section-title">Art Projects</h2>
+                            <span className="section-tag">PORTFOLIO</span>
+                            <h2 className="section-title">My Services</h2>
                         </div>
-                        <div class="filter-tabs">
-                            <button class="filter-tab active">All</button>
-                            <button class="filter-tab">Art</button>
-                            <button class="filter-tab">Design</button>
-                            <button class="filter-tab">Crafts</button>
-                        </div>
+                        <button className="post-btn" onClick={handlePostService}>
+                            + Add New Service
+                        </button>
                     </div>
 
-                    <div class="portfolio-grid">
-                        {/*<!-- Project Card 1 -->*/}
-                        <div class="project-card">
-                            <div class="project-image">
-                                <img src="https://i.etsystatic.com/8375113/r/il/1ef2bd/3567850704/il_fullxfull.3567850704_cm4w.jpg" alt="Crochet Project"/>
-                                <span class="project-category">Art</span>
+                        {servicesLoading ? (
+                            <div className="loading-spinner">Loading services...</div>
+                        ) : userServices.length === 0 ? (
+                            <div className="no-services">
+                                <p>You haven't posted any services yet.</p>
+                                <button className="post-btn" onClick={handlePostService}>
+                                    Post Your First Service
+                                </button>
                             </div>
-                            <div class="project-content">
-                                <h3 class="project-title">Handmade Crochet Collection</h3>
-                                <div class="project-rating">
-                                    <span class="stars">★★★★★</span>
-                                    <span class="rating-count">(10 reviews)</span>
-                                </div>
-                                <p class="project-description">Custom crochet items including amigurumi, blankets, and accessories. Made with premium materials.</p>
-                                <div class="project-footer">
-                                    <span class="project-price">₱20 - ₱500</span>
-                                    <button class="project-action">View Details →</button>
-                                </div>
+                        ) : (
+                            <div className="portfolio-grid">
+                                {userServices.map((service) => (
+                                    <div className="project-card" key={service._id}>
+                                        <div className="project-image">
+                                            <img 
+                                                src={service.image?.[0] || "https://via.placeholder.com/300"} 
+                                                alt={service.title}
+                                                onError={(e) => {
+                                                    e.target.src = "https://via.placeholder.com/300";
+                                                }}
+                                            />
+                                            <span className="project-category">{service.category}</span>
+                                        </div>
+                                        <div className="project-content">
+                                            <h3 className="project-title">{service.title}</h3>
+                                            <div className="service-meta">
+                                                <span className="service-price">₱{service.startingprice} | </span>
+                                                <span className="service-price-type">{service.pricetype} | </span>
+                                                <span className="service-delivery">• {service.deliverytime}</span>
+                                            </div>
+                                            <p className="project-description">
+                                                {service.description.length > 100 
+                                                    ? `${service.description.substring(0, 100)}...` 
+                                                    : service.description}
+                                            </p>
+                                            <div className="service-experience">
+                                                Experience: {service.experiencelevel}
+                                            </div>
+                                            <div className="project-footer">
+                                                <button 
+                                                    className="project-action"
+                                                    onClick={() => handleEditService(service._id)}
+                                                >
+                                                    Edit Service
+                                                </button>
+                                                <button 
+                                                    className="project-action delete"
+                                                    onClick={() => handleDeleteService(service._id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="load-more">
-                        <button class="load-more-btn">Load More Projects</button>
-                    </div>
-                </section>
+                        )}
+                    </section>
+
 
                 {/* <!-- Reviews Section -->*/}
-                <section class="reviews-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Client Reviews</h2>
-                        <a href="#" class="view-all">View all 156 reviews →</a>
+                <section className="reviews-section">
+                    <div className="section-header">
+                        <h2 className="section-title">Client Reviews</h2>
+                        <a href="#" className="view-all">View all 156 reviews →</a>
                     </div>
 
-                    <div class="reviews-grid">
-                        <div class="review-card">
-                            <div class="review-header">
-                                <img src="https://thumbs.dreamstime.com/b/monkey-portrait-2016188.jpg" alt="Client" class="reviewer-avatar"/>
+                    <div className="reviews-grid">
+                        <div className="review-card">
+                            <div className="review-header">
+                                <img src="https://thumbs.dreamstime.com/b/monkey-portrait-2016188.jpg" alt="Client" className="reviewer-avatar"/>
                                 <div>
-                                    <h4 class="reviewer-name">Maria Santos</h4>
-                                    <p class="review-date">March 2024</p>
+                                    <h4 className="reviewer-name">Maria Santos</h4>
+                                    <p className="review-date">March 2024</p>
                                 </div>
-                                <span class="review-rating">★★★★★</span>
+                                <span className="review-rating">★★★★★</span>
                             </div>
-                            <p class="review-text">"Amazing attention to detail! The crochet pieces exceeded my expectations. Will definitely order again."</p>
+                            <p className="review-text">"Amazing attention to detail! The crochet pieces exceeded my expectations. Will definitely order again."</p>
                         </div>
                     </div>
                     
@@ -279,4 +380,4 @@ const profilePage = () => {
 }
 
 
-export default profilePage;
+export default ProfilePage;

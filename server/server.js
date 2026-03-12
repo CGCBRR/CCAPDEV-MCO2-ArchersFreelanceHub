@@ -286,6 +286,8 @@ app.get('/api/verify-token', authenticateToken, (req, res) => {
 // *****************************************************************************************************************
 // Homepage
 // *****************************************************************************************************************
+app.use('/assets', express.static('../client/public/assets'));
+
 // Get user profile
 app.get('/api/get-profile', authenticateToken, async (req, res) => {
   try {
@@ -305,16 +307,38 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
       });
       await profile.save();
     }
+
+    // Calculate actual stats from projects
+    const projects = await Project.find({ userid: req.user.userId });
+    const totalprojects = projects.length;
+    
+    const completedProjects = projects.filter(p => p.status === "completed");
+    const averagerating = completedProjects.length > 0 
+      ? (completedProjects.reduce((sum, p) => sum + (p.rating || 0), 0) / completedProjects.length).toFixed(1)
+      : profile.averagerating || 0;
+    
+    const totalearned = projects.reduce((sum, p) => sum + (p.budget || 0), 0);
+
+    // Set default image path if profileimage is null/empty
+    const profileImageUrl = profile.profileimage 
+      ? profile.profileimage.startsWith('http') 
+        ? profile.profileimage 
+        : `/uploads/${profile.profileimage}`  // If stored as filename only
+      : '/assets/default-avatar.jpg';  // Default image
+
     
     res.json({
       email: req.user.email,
       username: profile.username,
-      profileimage: profile.profileimage,
+      profileimage: profileImageUrl,
       firstname: profile.username?.split('_')[0] || '',
       lastname: profile.username?.split('_')[1] || '',
-      bio: profile.bio,
+      bio: profile.bio || 'DLSU student passionate about freelancing.',
       location: profile.location,
-      website: profile.website
+      website: profile.website,
+      totalprojects: totalprojects || profile.totalprojects || 0,
+      totalearned: totalearned || profile.totalearned || 0,
+      averagerating: parseFloat(averagerating) || profile.averagerating || 0
     });
   } catch (error) {
     console.error('Profile error:', error);
@@ -348,6 +372,14 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
       const fullName = profile.userid.username || '';
       const [firstname, ...rest] = fullName.split(' ');
       const lastname = rest.join(' ');  // handles multiple words
+
+    // Set default image path if profileimage is null/empty
+    const profileImageUrl = profile.profileimage 
+      ? profile.profileimage.startsWith('http') 
+        ? profile.profileimage 
+        : `/uploads/${profile.profileimage}`  // If stored as filename only
+      : '/assets/default-avatar.jpg';  // Default image
+
       return { 
         userid: {
           username: fullName,
@@ -355,7 +387,7 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
         },
         firstname: firstname || 'First',
         lastname: lastname || 'Last',
-        profileimage: profile.profileimage,
+        profileimage: profileImageUrl,
         totalearned: profile.totalearned || 0,
         totalprojects: profile.totalprojects || 0,
         averagerating: profile.averagerating || 0,
@@ -399,6 +431,22 @@ app.get('/api/get-services', authenticateToken, async (req, res) => {
   }
 });
 
+// Get services by current user (for profile page)
+app.get('/api/get-my-services', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Get user ID from token
+    
+    // Find all services where userid matches the current user
+    const services = await Service.find({ userid: userId })
+      .populate('userid', 'username')
+      .sort({ createdAt: -1 }); // Sort by newest first
+    
+    res.json(services);
+  } catch (error) {
+    console.error('Error fetching user services:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // *****************************************************************************************************************
 // Post a Service
