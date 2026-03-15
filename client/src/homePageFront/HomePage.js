@@ -291,7 +291,7 @@ const Homepage = () => {
             </button>
             <div
               className="profile-icon"
-              onClick={() => (window.location.href = "profile.html")}
+              onClick={() => navigate("/my-projects")}
               style={{ cursor: "pointer" }}
             >
               <img src={userProfile?.profileimage || profile} alt="Profile" />
