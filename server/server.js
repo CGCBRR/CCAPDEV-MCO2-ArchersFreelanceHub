@@ -499,3 +499,158 @@ app.post('/api/editProfile', async (req, res) => {
   );
   res.redirect('/api/profile' );
 });
+
+
+// *****************************************************************************************************************
+// Search Services
+// *****************************************************************************************************************
+app.get('/api/search-services', authenticateToken, async (req, res) => {
+  try {
+    const { q, category, minPrice, maxPrice, sortBy, page = 1, limit = 10 } = req.query;
+    
+    // Build search query
+    const query = {};
+    
+    // Text search (case insensitive)
+    if (q && q.trim() !== '') {
+      query.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } }
+      ];
+    }
+    
+    // Category filter
+    if (category && category !== 'all') {
+      query.category = category;
+    }
+    
+    // Price range filter
+    if (minPrice || maxPrice) {
+      query.startingprice = {};
+      if (minPrice) query.startingprice.$gte = Number(minPrice);
+      if (maxPrice) query.startingprice.$lte = Number(maxPrice);
+    }
+    
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Determine sort order
+    let sortOption = {};
+    switch (sortBy) {
+      case 'price_low':
+        sortOption = { startingprice: 1 };
+        break;
+      case 'price_high':
+        sortOption = { startingprice: -1 };
+        break;
+      case 'newest':
+        sortOption = { createdAt: -1 };
+        break;
+      case 'oldest':
+        sortOption = { createdAt: 1 };
+        break;
+      default:
+        sortOption = { createdAt: -1 }; // Default: newest first
+    }
+    
+    // Execute search query with pagination
+    const services = await Service.find(query)
+      .populate({
+        path: 'userid',
+        select: 'username email'
+      })
+      .sort(sortOption)
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    // Get total count for pagination
+    const totalCount = await Service.countDocuments(query);
+    
+    // Format the response with freelancer details
+    const formattedServices = services.map(service => {
+      // Get freelancer name from username (format: first_last)
+      const username = service.userid?.username || '';
+      const nameParts = username.split('_');
+      const firstName = nameParts[0] || 'Freelancer';
+      const lastName = nameParts[1] || '';
+      
+      return {
+        _id: service._id,
+        title: service.title,
+        category: service.category,
+        description: service.description,
+        startingprice: service.startingprice,
+        pricetype: service.pricetype,
+        deliverytime: service.deliverytime,
+        experiencelevel: service.experiencelevel,
+        image: service.image,
+        freelancer: {
+          id: service.userid?._id,
+          username: username,
+          firstName: firstName,
+          lastName: lastName,
+          fullName: `${firstName} ${lastName}`.trim(),
+          email: service.userid?.email
+        },
+        createdAt: service.createdAt
+      };
+    });
+    
+    res.json({
+      success: true,
+      data: formattedServices,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalCount / parseInt(limit)),
+        totalCount: totalCount,
+        hasMore: skip + formattedServices.length < totalCount
+      }
+    });
+    
+  } catch (error) {
+    console.error('Search services error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Server error during search' 
+    });
+  }
+});
+
+// Get unique categories for filter dropdown
+app.get('/api/service-categories', authenticateToken, async (req, res) => {
+  try {
+    const categories = await Service.distinct('category');
+    
+    // Ensure we have at least your default categories
+    const defaultCategories = [
+      'Visual Arts',
+      'Academic Help', 
+      'Video Editing',
+      'Programming',
+      'Marketing',
+      'Music & Audio'
+    ];
+    
+    // Combine existing categories with defaults (removing duplicates)
+    const allCategories = [...new Set([...categories, ...defaultCategories])];
+    
+    res.json({
+      success: true,
+      data: allCategories
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    // Return default categories even if database fails
+    res.json({
+      success: true,
+      data: [
+        'Visual Arts',
+        'Academic Help',
+        'Video Editing', 
+        'Programming',
+        'Marketing',
+        'Music & Audio'
+      ]
+    });
+  }
+});
