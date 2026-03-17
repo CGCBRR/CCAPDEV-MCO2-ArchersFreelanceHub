@@ -1,0 +1,10 @@
+/* main.css - Profile Page Styles */
+@import url('base.css');
+@import url('header.css');
+@import url('profile-cover.css');
+@import url('profile-info.css');
+@import url('skills.css');
+@import url('portfolio.css');
+@import url('reviews.css');
+@import url('footer.css');
+@import url('responsive.css');
