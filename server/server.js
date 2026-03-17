@@ -59,12 +59,9 @@ const userProfileSchema = new mongoose.Schema({
   profileimage: { 
     type: String 
   },
-<<<<<<< HEAD
   tagline:{
     type: String
   },
-=======
->>>>>>> origin/editPage-&-profilePage
   totalearned: { 
     type: Number, 
     default: 0 
