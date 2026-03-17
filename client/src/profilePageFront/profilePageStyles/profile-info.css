@@ -1,0 +1,363 @@
+/* ========== PROFILE-INFO.CSS ========== */
+/* Shared layout styles */
+.profile-info {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-10);
+    padding-top: 40px;
+    position: relative;
+    z-index: 10;
+}
+
+.info-main {
+    margin-bottom: var(--space-6);
+    margin-top: 20px;
+}
+
+/* ===== PROFILE.HTML (VIEW MODE) ===== */
+.profile-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: var(--space-2);
+    letter-spacing: -0.5px;
+}
+
+.profile-tagline {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+.profile-meta {
+    display: flex;
+    gap: var(--space-8);
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-1);
+}
+
+.meta-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin: var(--space-8) 0;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-green);
+    border-color: var(--green-primary);
+}
+
+.stat-number {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green-primary);
+    margin-bottom: var(--space-1);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+.profile-bio {
+    background: var(--white);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-light);
+}
+
+.profile-bio h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.profile-bio p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* ===== EDITPROFILE.HTML (EDIT MODE) ===== */
+
+/* Edit Mode Container */
+.profile-info.edit-mode {
+    background-color: var(--gray-50);
+    border-radius: var(--radius-xxl);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+/* Edit Form Card */
+.edit-form-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--space-6);
+}
+
+/* Section Headers in Edit Mode */
+.edit-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--green-dark);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--green-soft-bg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.edit-section-title svg {
+    stroke: var(--green-primary);
+}
+
+/* Input Groups */
+.edit-input-group {
+    margin-bottom: var(--space-6);
+}
+
+.edit-input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.edit-input-label svg {
+    margin-right: var(--space-2);
+    vertical-align: middle;
+}
+
+/* Input Fields */
+.edit-input,
+.edit-textarea {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: var(--gray-50);
+    color: var(--text-primary);
+}
+
+.edit-input:hover,
+.edit-textarea:hover {
+    border-color: var(--gray-400);
+    background-color: var(--white);
+}
+
+.edit-input:focus,
+.edit-textarea:focus {
+    outline: none;
+    border-color: var(--green-primary);
+    background-color: var(--white);
+    box-shadow: 0 0 0 4px var(--green-soft-bg);
+}
+
+.edit-input::placeholder,
+.edit-textarea::placeholder {
+    color: var(--gray-400);
+    font-style: italic;
+}
+
+.edit-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+/* Meta Fields Grid */
+.edit-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+    padding: var(--space-6);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--gray-300);
+}
+
+.edit-meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-meta-item .edit-input {
+    background: var(--white);
+}
+
+/* Character Counter */
+.edit-char-counter {
+    text-align: right;
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-top: var(--space-2);
+}
+
+.edit-char-counter span {
+    color: var(--green-primary);
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.edit-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 2px solid var(--gray-200);
+}
+
+.edit-save-btn,
+.edit-cancel-btn {
+    padding: 14px 32px;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    flex: 1;
+}
+
+.edit-save-btn {
+    background: var(--green-gradient);
+    color: var(--white);
+    border: none;
+    box-shadow: var(--shadow-green);
+}
+
+.edit-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0, 105, 55, 0.3);
+}
+
+.edit-save-btn:active {
+    transform: translateY(0);
+}
+
+.edit-cancel-btn {
+    background: var(--white);
+    color: var(--gray-600);
+    border: 2px solid var(--gray-300);
+}
+
+.edit-cancel-btn:hover {
+    background: var(--gray-100);
+    border-color: var(--gray-400);
+    transform: translateY(-2px);
+}
+
+/* Preview Card */
+.edit-preview-card {
+    background: linear-gradient(135deg, var(--green-soft-bg) 0%, transparent 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    border: 1px solid var(--green-soft-bg);
+}
+
+.edit-preview-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green-primary);
+    margin-bottom: var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.edit-preview-content {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Responsive for Edit Mode */
+@media (max-width: 768px) {
+    .profile-info.edit-mode {
+        padding: var(--space-6);
+        padding-top: 100px;
+    }
+    
+    .edit-form-card {
+        padding: var(--space-5);
+    }
+    
+    .edit-meta-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+        padding: var(--space-4);
+    }
+    
+    .edit-actions {
+        flex-direction: column;
+    }
+    
+    .edit-save-btn,
+    .edit-cancel-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-form-card {
+        padding: var(--space-4);
+    }
+    
+    .edit-section-title {
+        font-size: 18px;
+    }
+    
+    .edit-input,
+    .edit-textarea {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+    
+    .edit-save-btn,
+    .edit-cancel-btn {
+        padding: 12px 24px;
+        font-size: 15px;
+    }
+}

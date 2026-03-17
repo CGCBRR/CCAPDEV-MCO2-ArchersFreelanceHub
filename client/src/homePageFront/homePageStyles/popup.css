@@ -1,0 +1,265 @@
+/* ========== POPUP.CSS ========== */
+/* Modal/Popup overlay and content */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.popup {
+    margin-top: 2%;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    width: 90%;
+    max-width: 1500px;
+    max-height: 100%;
+    overflow-y: auto;
+    position: relative;
+    animation: scaleIn 0.3s ease;
+    margin: 50px auto;
+    max-height: calc(100vh - 80px);
+}
+
+/* Scrollbar styling */
+.popup::-webkit-scrollbar {
+    width: 8px;
+}
+
+.popup::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.popup::-webkit-scrollbar-thumb {
+    background: var(--green-primary);
+    border-radius: 4px;
+}
+
+.popup::-webkit-scrollbar-thumb:hover {
+    background: #16a34a;
+}
+
+/* Close Button */
+.closeBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-circle);
+    background: var(--gray-100);
+    color: var(--gray-600);
+    font-size: 24px;
+    font-weight: 500;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.closeBtn:hover {
+    background: var(--green-primary);
+    color: var(--white);
+    transform: rotate(90deg);
+}
+
+/* Popup Content */
+.popup-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10);
+    padding: var(--space-16);
+}
+
+/* Gallery Section */
+.popup-image-wrapper {
+    justify-content: center;
+    gap: var(--space-5);
+}
+
+.popup-main-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+/* Freelancer Featured Works */
+.featworks-thumbnails {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: var(--space-2); 
+    scrollbar-width: thin; 
+    scrollbar-color: var(--green-primary) var(--gray-200); 
+}
+
+.featworks-thumbnails img {
+    max-width: 200px;
+    width: 90%;
+    aspect-ratio: 12/9;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+}
+
+.featworks-thumbnails:has(img:first-child:nth-last-child(3)) img {
+    flex: 1 0 0;
+}
+
+.featworks-thumbnails:has(img:first-child:nth-last-child(2)) img {
+    flex: 1 0 0;
+}
+
+.featworks-thumbnails:has(img:first-child:nth-last-child(1)) img {
+    flex: 1 0 0;
+}
+
+.featworks-thumbnails::-webkit-scrollbar {
+    height: 6px;
+}
+
+.featworks-thumbnails::-webkit-scrollbar-track {
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+}
+
+.featworks-thumbnails::-webkit-scrollbar-thumb {
+    background: var(--green-primary);
+    border-radius: var(--radius-full);
+}
+
+.featworks-thumbnails::-webkit-scrollbar-thumb:hover {
+    background: var(--green-dark);
+}
+
+.featworks-thumbnails img:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+/* Details Section */
+.popup-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.popup-price {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--green-primary);
+}
+
+/* User Info in Popup */
+.popup-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+}
+
+.popup-user img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-circle);
+    object-fit: cover;
+}
+
+.popup-user h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.popup-user p {
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+/* Description */
+.popup-description h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.popup-description p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* Meta Information */
+.popup-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-1);
+}
+
+.meta-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Hire Button */
+.popup-hire-btn {
+    padding: 18px;
+    background: var(--green-gradient);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 18px;
+    transition: all var(--transition-base);
+    margin-top: var(--space-4);
+}
+
+.popup-hire-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-green-hover);
+}
