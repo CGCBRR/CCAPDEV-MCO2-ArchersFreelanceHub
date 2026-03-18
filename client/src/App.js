@@ -4,6 +4,7 @@ import LoginPage from './loginPageFront/LoginPage';
 import Homepage from './homePageFront/HomePage';
 import PostService from './postServiceFront/PostService';
 import ProfilePage from './profilePageFront/profilePage';
+import EditPage from './editPageFront/editPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,10 +22,20 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route 
           path="/homepage" 
-          element={isAuthenticated  ? <Homepage /> : <Navigate to="/" />} 
+          element={isAuthenticated ? <Homepage /> : <Navigate to="/" />} 
         />
-        <Route path="/postservice" element={<PostService />} />
-        <Route path="/my-projects" element={<ProfilePage />} />
+        <Route 
+          path="/postservice" 
+          element={isAuthenticated ? <PostService /> : <Navigate to="/" />} 
+        />
+        <Route 
+          path="/my-projects" 
+          element={isAuthenticated ? <ProfilePage /> : <Navigate to="/" />} 
+        />
+        <Route 
+          path="/edit-profile" 
+          element={isAuthenticated ? <EditPage /> : <Navigate to="/" />} 
+        />
       </Routes>
     </Router>
   );

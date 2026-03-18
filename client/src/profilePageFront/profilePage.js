@@ -23,11 +23,10 @@ const ProfilePage = () => {
          await axios.get("http://localhost:5000/api/verify-token", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // setMessage(res.data.message);
       } catch (err) {
         if (err.response && err.response.status === 401) {
           setMessage("Access denied. Please login first.");
-          navigate("/"); // redirect to login page
+          navigate("/");
         } else {
           setMessage("Something went wrong.");
         }
@@ -35,7 +34,6 @@ const ProfilePage = () => {
     };
     verifyToken();
 
-    // Fetch user profile data 
     const fetchUserProfile = async () => {
         setLoading(true);
         try {
@@ -56,7 +54,6 @@ const ProfilePage = () => {
         }
     };
 
-    // Fetch user's services
     const fetchUserServices = async () => {
         setServicesLoading(true);
         try {
@@ -78,12 +75,29 @@ const ProfilePage = () => {
 }, [navigate]);
 
 const handleSignOut = () => {
-    localStorage.removeItem("token"); // clear JWT
-    navigate("/"); // redirect to login page
+    localStorage.removeItem("token");
+    navigate("/");
 };
 
 const handlePostService = () => {
-    navigate("/postservice"); // redirect to post service page
+    navigate("/postservice");
+};
+
+const handleEditProfile = () => {
+    navigate("/edit-profile");
+};
+
+const handleShareProfile = () => {
+    // Copy profile URL to clipboard
+    const profileUrl = window.location.href;
+    navigator.clipboard.writeText(profileUrl)
+        .then(() => alert("Profile link copied to clipboard!"))
+        .catch(() => alert("Failed to copy link"));
+};
+
+const handleAdminDashboard = () => {
+    // You can add role check here later
+    navigate("/admin-dashboard");
 };
 
 const handleEditService = (serviceId) => {
@@ -97,7 +111,6 @@ const handleDeleteService = async (serviceId) => {
             await axios.delete(`http://localhost:5000/api/delete-service/${serviceId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            // Refresh services list
             setUserServices(userServices.filter(service => service._id !== serviceId));
         } catch (err) {
             console.error("Error deleting service:", err);
@@ -114,7 +127,6 @@ const formatDate = (dateString) => {
     });
 };
 
-// SHOW LOADING STATE
 if (loading) {
     return (
         <div className="loading-container">
@@ -123,7 +135,6 @@ if (loading) {
     );
 }
 
-// SHOW ERROR IF NO PROFILE
 if (!userProfile) {
     return (
         <div className="error-container">
@@ -132,7 +143,6 @@ if (!userProfile) {
         </div>
     );
 }
-
 
     return (
         <>
@@ -158,7 +168,7 @@ if (!userProfile) {
                 <Link to="/homepage" className="nav-link">
                     Home
                 </Link>
-                <Link to="/profile" className="nav-link">
+                <Link to="/my-projects" className="nav-link">
                     My Projects
                 </Link>
                 </nav>
@@ -177,7 +187,7 @@ if (!userProfile) {
                 </button>
                 <div
                     className="profile-icon"
-                    onClick={() => (window.location.href = "profile.html")}
+                    onClick={() => navigate("/my-projects")}
                     style={{ cursor: "pointer" }}
                 >
                     <img 
@@ -191,7 +201,7 @@ if (!userProfile) {
             </header>
 
             <main>
-                {/*Profile Cover Section -->*/}
+                {/*Profile Cover Section */}
                 <section className="profile-cover">
                     <div className="cover-image"></div>
                     
@@ -203,35 +213,44 @@ if (!userProfile) {
                                 className="profile-avatar"
                             />
                         </div>
-                        {/*<!-- Container for both button groups --> */}
                         
                         <div className="profile-header-right">
-                            {/*<!-- Admin Button in its own container --> */}
                             
+                            {/* Admin Button - Hide this for now or add role check later */}
                             <div className="profile-actions admin-container">
-                                <button className="btn-admin" onclick="window.location.href='admin-dashboard.html'">
+                                <button 
+                                    className="btn-admin" 
+                                    onClick={handleAdminDashboard}
+                                >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"/>
-                                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"/>
-                                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2"/>
+                                        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2"/>
+                                        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2"/>
                                     </svg>
                                     Admin
                                 </button>
                             </div>
 
-                            {/*<!-- Edit Profile and Share in their own container --> */}
+                            {/* Edit Profile and Share */}
                             <div className="profile-actions">
-                                <button className="btn-primary" id="editBtn">
+                                <button 
+                                    className="btn-primary" 
+                                    id="editBtn"
+                                    onClick={handleEditProfile}
+                                >
                                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                        <path d="M13 7L9 11L5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M13 7L9 11L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                     Edit Profile
                                 </button>
-                                <button className="btn-secondary">
+                                <button 
+                                    className="btn-secondary"
+                                    onClick={handleShareProfile}
+                                >
                                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                        <path d="M14 10V14C14 15.1 13.1 16 12 16H4C2.9 16 2 15.1 2 14V6C2 4.9 2.9 4 4 4H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                        <path d="M10 2H16V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                        <path d="M8 10L16 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <path d="M14 10V14C14 15.1 13.1 16 12 16H4C2.9 16 2 15.1 2 14V6C2 4.9 2.9 4 4 4H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                        <path d="M10 2H16V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                        <path d="M8 10L16 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                                     </svg>
                                     Share
                                 </button>
@@ -240,11 +259,13 @@ if (!userProfile) {
                     </div>
                 </section>
 
-                {/* <!-- Profile Info Section -->*/}
+                {/* Profile Info Section */}
                 <section className="profile-info" >
                     <div className="info-main">
                         <h1 className="profile-name" id="profileName">{userProfile.username}</h1>
-                        <p className="profile-tagline" id="profileTagline">{userProfile.tagline}</p>
+                        <p className="profile-tagline" id="profileTagline">
+                            {userProfile.tagline || "No tagline yet"}
+                        </p>
                         
                         <div className="profile-meta">
                             <div className="meta-item">
@@ -253,34 +274,44 @@ if (!userProfile) {
                             </div>
                             <div className="meta-item">
                                 <span className="meta-label">Location</span>
-                                <span className="meta-value" id="location">{userProfile?.location || "Manila, Philippines"}</span>
+                                <span className="meta-value" id="location">
+                                    {userProfile?.location || "Manila, Philippines"}
+                                </span>
                             </div>
                             <div className="meta-item">
                                 <span className="meta-label">Languages</span>
-                                <span className="meta-value"id="language">{userProfile?.languages || "English, Filipino"}</span>
+                                <span className="meta-value" id="language">
+                                    {userProfile?.languages || "English, Filipino"}
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <div className="profile-stats">
                         <div className="stat-card">
-                            <span className="stat-number"id="projectNum">{userProfile.totalprojects}</span>
+                            <span className="stat-number" id="projectNum">
+                                {userProfile.totalprojects || 0}
+                            </span>
                             <span className="stat-label">Projects</span>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-number"id="ratingNum">{userProfile.averagerating}</span>
+                            <span className="stat-number" id="ratingNum">
+                                {userProfile.averagerating || 0}
+                            </span>
                             <span className="stat-label">Rating</span>
                         </div>
                     </div>
 
                     <div className="profile-bio" >
                         <h3>About</h3>
-                        <p id = "profileBio">{userProfile.bio}</p>
+                        <p id="profileBio">
+                            {userProfile.bio || "No bio yet."}
+                        </p>
                     </div>
                 </section>
 
-                {/* <!-- Portfolio/Posts Section -->*/}
-                <section className="portfolio-section"id="portfolioSect">
+                {/* Portfolio/Posts Section */}
+                <section className="portfolio-section" id="portfolioSect">
                     <div className="section-header">
                         <div>
                             <span className="section-tag">PORTFOLIO</span>
@@ -350,12 +381,13 @@ if (!userProfile) {
                         )}
                     </section>
 
-
-                {/* <!-- Reviews Section -->*/}
+                {/* Reviews Section */}
                 <section className="reviews-section">
                     <div className="section-header">
                         <h2 className="section-title">Client Reviews</h2>
-                        <a href="#" className="view-all">View all 156 reviews →</a>
+                        <a href="#" className="view-all" onClick={(e) => e.preventDefault()}>
+                            View all 156 reviews →
+                        </a>
                     </div>
 
                     <div className="reviews-grid">
@@ -378,6 +410,5 @@ if (!userProfile) {
         </>
     );
 }
-
 
 export default ProfilePage;

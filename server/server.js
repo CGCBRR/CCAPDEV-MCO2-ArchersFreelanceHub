@@ -48,19 +48,33 @@ const userSchema = new mongoose.Schema({
 // User Profile Schema
 const userProfileSchema = new mongoose.Schema({
   userid: {
-    type: mongoose.Schema.Types.ObjectId, // Foreign Key
-    ref: "User", // Reference to User Schema
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true
+  },
+  username: {
+    type: String
+  },
+  tagline: {
+    type: String,
+    maxlength: 100,
+    default: ''
   },
   bio: {
     type: String,
-    maxlength: 200
+    maxlength: 500,
+    default: ''
+  },
+  location: {
+    type: String,
+    default: ''
+  },
+  languages: {
+    type: String,
+    default: 'English, Filipino'
   },
   profileimage: { 
     type: String 
-  },
-  tagline:{
-    type: String
   },
   totalearned: { 
     type: Number, 
@@ -654,6 +668,50 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
         'Marketing',
         'Music & Audio'
       ]
+    });
+  }
+});
+
+
+// *****************************************************************************************************************
+// Update User Profile
+// *****************************************************************************************************************
+app.put('/api/update-profile', authenticateToken, async (req, res) => {
+  try {
+    const { username, tagline, bio, location, languages } = req.body;
+    const userId = req.user.userId;
+
+    // Find and update the user profile
+    const updatedProfile = await UserProfile.findOneAndUpdate(
+      { userid: userId },
+      { 
+        username: username,
+        tagline: tagline,
+        bio: bio,
+        location: location,
+        languages: languages
+      },
+      { new: true, upsert: true } // upsert: create if doesn't exist
+    );
+
+    // Also update the username in the User collection if needed
+    await User.findByIdAndUpdate(
+      userId,
+      { username: username },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      profile: updatedProfile
+    });
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while updating profile' 
     });
   }
 });
