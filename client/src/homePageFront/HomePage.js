@@ -5,7 +5,7 @@ import "./homePageStyles/main.css"
 import logo2 from './images/logo2.png';
 import profile from "./images/profile.jpg";
 import heroImage from "./images/hero-image.png";
-import ContactPopup from './ContactPopup'; // Import the popup component
+import ContactPopup from './ContactPopup';
 
 const Homepage = () => {
   const [message, setMessage] = useState("");
@@ -161,7 +161,7 @@ const Homepage = () => {
     });
   };
 
-  // NEW: Handle Hire Now button click
+  // Handle Hire Now button click
   const handleHireNow = async (freelancerId) => {
     try {
       setLoadingContact(true);

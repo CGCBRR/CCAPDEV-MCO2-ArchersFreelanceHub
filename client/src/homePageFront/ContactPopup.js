@@ -16,7 +16,7 @@ const ContactPopup = ({ freelancer, onClose }) => {
             .catch(() => alert(`Failed to copy ${type}`));
     };
 
-    // Get payment method emoji
+    // Get payment method
     const getPaymentEmoji = (method) => {
         switch(method) {
             case 'Cash': return '💵';
@@ -165,7 +165,7 @@ const ContactPopup = ({ freelancer, onClose }) => {
                     </div>
                 </div>
                 
-                {/* Footer - unchanged */}
+                {/* Footer */}
                 <div className="popup-footer">
                     <p>
                         <span>📌</span> 

@@ -317,7 +317,7 @@ if (!userProfile) {
                         </p>
                     </div>
 
-                    {/* NEW: Payment Methods Section */}
+                    {/* Payment Methods Section */}
                     {userProfile.paymentMethods && userProfile.paymentMethods.length > 0 && (
                         <div className="profile-payment-section">
                             <h3>Accepted Payment Methods</h3>
@@ -331,7 +331,7 @@ if (!userProfile) {
                         </div>
                     )}
 
-                    {/* NEW: Contact Information Section */}
+                    {/* Contact Information Section */}
                     {userProfile.contactInfo && (
                         <div className="profile-contact-section">
                             <h3>Contact Information</h3>

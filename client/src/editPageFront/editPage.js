@@ -17,14 +17,14 @@ const EditPage = () => {
     const [location, setLocation] = useState("");
     const [languages, setLanguages] = useState("");
     
-    // NEW: Payment Methods
+    // Payment Methods
     const [paymentMethods, setPaymentMethods] = useState({
         cash: true,
         gcash: false,
         bankTransfer: false
     });
     
-    // NEW: Contact Information
+    // Contact Information
     const [contactInfo, setContactInfo] = useState({
         facebook: "",
         email: "",
@@ -68,7 +68,7 @@ const EditPage = () => {
                 setLocation(res.data.location || "");
                 setLanguages(res.data.languages || "English, Filipino");
                 
-                // NEW: Populate payment methods
+                // Populate payment methods
                 if (res.data.paymentMethods) {
                     setPaymentMethods({
                         cash: res.data.paymentMethods.includes('Cash'),
@@ -77,7 +77,7 @@ const EditPage = () => {
                     });
                 }
                 
-                // NEW: Populate contact info
+                // Populate contact info
                 if (res.data.contactInfo) {
                     setContactInfo({
                         facebook: res.data.contactInfo.facebook || "",
@@ -335,7 +335,7 @@ const EditPage = () => {
                                 <div className="edit-char-counter"><span>{userBio.length}</span>/500 characters</div>
                             </div>
 
-                            {/* NEW: Payment Methods Section */}
+                            {/* Payment Methods Section */}
                             <h3 className="edit-section-title">
                                 Payment Methods
                             </h3>
@@ -369,7 +369,7 @@ const EditPage = () => {
                                 </div>
                             </div>
 
-                            {/* NEW: Contact Information Section */}
+                            {/* Contact Information Section */}
                             <h3 className="edit-section-title">
                                 Contact Information
                             </h3>

@@ -229,10 +229,10 @@
     margin: 0;
 }
 
-/* Footer - Now scrolls with content */
+/* Footer */
 .popup-footer {
-    margin: 25px 0 0; /* Add margin top for spacing */
-    padding: 15px 25px 25px; /* Bottom padding for last element */ /*TOP, RIGHT, BOTTOM - adjust mo nalang*/
+    margin: 25px 0 0;
+    padding: 15px 25px 25px; /*TOP, RIGHT, BOTTOM - adjust mo nalang*/
     background-color: #e8f5e9;
     border-top: 1px solid #c8e6c9;
     font-size: 14px;
