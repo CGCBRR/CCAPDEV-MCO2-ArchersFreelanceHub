@@ -88,7 +88,6 @@ const handleEditProfile = () => {
 };
 
 const handleShareProfile = () => {
-    // Copy profile URL to clipboard
     const profileUrl = window.location.href;
     navigator.clipboard.writeText(profileUrl)
         .then(() => alert("Profile link copied to clipboard!"))
@@ -96,7 +95,6 @@ const handleShareProfile = () => {
 };
 
 const handleAdminDashboard = () => {
-    // You can add role check here later
     navigate("/admin-dashboard");
 };
 
@@ -125,6 +123,16 @@ const formatDate = (dateString) => {
         year: 'numeric', 
         month: 'long' 
     });
+};
+
+// Helper function to get payment method emoji
+const getPaymentEmoji = (method) => {
+    switch(method) {
+        case 'Cash': return '💵';
+        case 'GCash': return '📱';
+        case 'Bank Transfer': return '🏦';
+        default: return '💰';
+    }
 };
 
 if (loading) {
@@ -216,7 +224,7 @@ if (!userProfile) {
                         
                         <div className="profile-header-right">
                             
-                            {/* Admin Button - Hide this for now or add role check later */}
+                            {/* Admin Button */}
                             <div className="profile-actions admin-container">
                                 <button 
                                     className="btn-admin" 
@@ -308,6 +316,64 @@ if (!userProfile) {
                             {userProfile.bio || "No bio yet."}
                         </p>
                     </div>
+
+                    {/* NEW: Payment Methods Section */}
+                    {userProfile.paymentMethods && userProfile.paymentMethods.length > 0 && (
+                        <div className="profile-payment-section">
+                            <h3>Accepted Payment Methods</h3>
+                            <div className="payment-methods-display">
+                                {userProfile.paymentMethods.map((method, index) => (
+                                    <span key={index} className="payment-method-badge">
+                                        {getPaymentEmoji(method)} {method}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* NEW: Contact Information Section */}
+                    {userProfile.contactInfo && (
+                        <div className="profile-contact-section">
+                            <h3>Contact Information</h3>
+                            <div className="contact-info-display">
+                                {userProfile.contactInfo.facebook && (
+                                    <div className="contact-item">
+                                        <span className="contact-icon">📘</span>
+                                        <a href={userProfile.contactInfo.facebook} 
+                                           target="_blank" 
+                                           rel="noopener noreferrer"
+                                           className="contact-link">
+                                            {userProfile.contactInfo.facebook}
+                                        </a>
+                                    </div>
+                                )}
+                                {userProfile.contactInfo.email && (
+                                    <div className="contact-item">
+                                        <span className="contact-icon">📧</span>
+                                        <a href={`mailto:${userProfile.contactInfo.email}`}
+                                           className="contact-link">
+                                            {userProfile.contactInfo.email}
+                                        </a>
+                                    </div>
+                                )}
+                                {userProfile.contactInfo.phone && (
+                                    <div className="contact-item">
+                                        <span className="contact-icon">📞</span>
+                                        <a href={`tel:${userProfile.contactInfo.phone}`}
+                                           className="contact-link">
+                                            {userProfile.contactInfo.phone}
+                                        </a>
+                                    </div>
+                                )}
+                                {userProfile.contactInfo.other && (
+                                    <div className="contact-item">
+                                        <span className="contact-icon">💬</span>
+                                        <span className="contact-text">{userProfile.contactInfo.other}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </section>
 
                 {/* Portfolio/Posts Section */}

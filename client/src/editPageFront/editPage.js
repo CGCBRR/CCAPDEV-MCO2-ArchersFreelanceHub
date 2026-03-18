@@ -10,12 +10,27 @@ const EditPage = () => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     
-    // Form states
+    // Form states - Basic Info
     const [profileName, setProfileName] = useState("");
     const [tagline, setTagline] = useState("");
     const [userBio, setUserBio] = useState("");
     const [location, setLocation] = useState("");
     const [languages, setLanguages] = useState("");
+    
+    // NEW: Payment Methods
+    const [paymentMethods, setPaymentMethods] = useState({
+        cash: true,
+        gcash: false,
+        bankTransfer: false
+    });
+    
+    // NEW: Contact Information
+    const [contactInfo, setContactInfo] = useState({
+        facebook: "",
+        email: "",
+        phone: "",
+        other: ""
+    });
     
     const navigate = useNavigate(); 
 
@@ -51,7 +66,26 @@ const EditPage = () => {
                 setTagline(res.data.tagline || "");
                 setUserBio(res.data.bio || "");
                 setLocation(res.data.location || "");
-                setLanguages(res.data.languages || "");
+                setLanguages(res.data.languages || "English, Filipino");
+                
+                // NEW: Populate payment methods
+                if (res.data.paymentMethods) {
+                    setPaymentMethods({
+                        cash: res.data.paymentMethods.includes('Cash'),
+                        gcash: res.data.paymentMethods.includes('GCash'),
+                        bankTransfer: res.data.paymentMethods.includes('Bank Transfer')
+                    });
+                }
+                
+                // NEW: Populate contact info
+                if (res.data.contactInfo) {
+                    setContactInfo({
+                        facebook: res.data.contactInfo.facebook || "",
+                        email: res.data.contactInfo.email || res.data.email || "",
+                        phone: res.data.contactInfo.phone || "",
+                        other: res.data.contactInfo.other || ""
+                    });
+                }
                 
                 console.log("Fetched user profile:", res.data);
                 setLoading(false);
@@ -67,9 +101,31 @@ const EditPage = () => {
         }
     }, [navigate]);
 
+    // Handle payment method checkbox changes
+    const handlePaymentMethodChange = (method) => {
+        setPaymentMethods({
+            ...paymentMethods,
+            [method]: !paymentMethods[method]
+        });
+    };
+
+    // Handle contact info changes
+    const handleContactInfoChange = (field, value) => {
+        setContactInfo({
+            ...contactInfo,
+            [field]: value
+        });
+    };
+
     // Handles profile edit saving
     const handleEditProfile = async (e) => {
         e.preventDefault();
+
+        // Convert payment methods object to array
+        const selectedPaymentMethods = [];
+        if (paymentMethods.cash) selectedPaymentMethods.push('Cash');
+        if (paymentMethods.gcash) selectedPaymentMethods.push('GCash');
+        if (paymentMethods.bankTransfer) selectedPaymentMethods.push('Bank Transfer');
 
         try {
             const token = localStorage.getItem("token");
@@ -81,14 +137,16 @@ const EditPage = () => {
                     tagline: tagline,
                     bio: userBio,
                     location: location,
-                    languages: languages
+                    languages: languages,
+                    paymentMethods: selectedPaymentMethods,
+                    contactInfo: contactInfo
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             if (res.data.success) {
                 alert("Successfully updated your profile!");
-                navigate("/my-projects"); // redirect to profile page
+                navigate("/my-projects");
             }
         } catch (err) {
             console.error("Error updating profile:", err);
@@ -275,6 +333,92 @@ const EditPage = () => {
                                     rows="5"
                                 />
                                 <div className="edit-char-counter"><span>{userBio.length}</span>/500 characters</div>
+                            </div>
+
+                            {/* NEW: Payment Methods Section */}
+                            <h3 className="edit-section-title">
+                                Payment Methods
+                            </h3>
+                            <div className="edit-input-group">
+                                <label className="edit-input-label">Select your accepted payment methods</label>
+                                <div className="payment-methods-grid">
+                                    <label className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={paymentMethods.cash}
+                                            onChange={() => handlePaymentMethodChange('cash')}
+                                        />
+                                        💵 Cash
+                                    </label>
+                                    <label className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={paymentMethods.gcash}
+                                            onChange={() => handlePaymentMethodChange('gcash')}
+                                        />
+                                        📱 GCash
+                                    </label>
+                                    <label className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={paymentMethods.bankTransfer}
+                                            onChange={() => handlePaymentMethodChange('bankTransfer')}
+                                        />
+                                        🏦 Bank Transfer
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* NEW: Contact Information Section */}
+                            <h3 className="edit-section-title">
+                                Contact Information
+                            </h3>
+                            <p className="edit-section-subtitle">
+                                These details will be shown to clients when they click "Hire Now"
+                            </p>
+
+                            <div className="edit-input-group">
+                                <label className="edit-input-label">Facebook Profile Link</label>
+                                <input
+                                    type="text"
+                                    className="edit-input"
+                                    value={contactInfo.facebook}
+                                    placeholder="https://facebook.com/your.username"
+                                    onChange={(e) => handleContactInfoChange('facebook', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="edit-input-group">
+                                <label className="edit-input-label">Email Address</label>
+                                <input
+                                    type="email"
+                                    className="edit-input"
+                                    value={contactInfo.email}
+                                    placeholder="your.email@dlsu.edu.ph"
+                                    onChange={(e) => handleContactInfoChange('email', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="edit-input-group">
+                                <label className="edit-input-label">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    className="edit-input"
+                                    value={contactInfo.phone}
+                                    placeholder="+63 912 345 6789"
+                                    onChange={(e) => handleContactInfoChange('phone', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="edit-input-group">
+                                <label className="edit-input-label">Other Contact (Optional)</label>
+                                <input
+                                    type="text"
+                                    className="edit-input"
+                                    value={contactInfo.other}
+                                    placeholder="Telegram, Viber, etc."
+                                    onChange={(e) => handleContactInfoChange('other', e.target.value)}
+                                />
                             </div>
 
                             {/* Preview Card */}

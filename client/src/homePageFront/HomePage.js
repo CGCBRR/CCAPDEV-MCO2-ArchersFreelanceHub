@@ -5,6 +5,7 @@ import "./homePageStyles/main.css"
 import logo2 from './images/logo2.png';
 import profile from "./images/profile.jpg";
 import heroImage from "./images/hero-image.png";
+import ContactPopup from './ContactPopup'; // Import the popup component
 
 const Homepage = () => {
   const [message, setMessage] = useState("");
@@ -31,6 +32,11 @@ const Homepage = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
   
+  // Popup states
+  const [showContactPopup, setShowContactPopup] = useState(false);
+  const [selectedFreelancer, setSelectedFreelancer] = useState(null);
+  const [loadingContact, setLoadingContact] = useState(false);
+  
   // Pagination
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -53,7 +59,6 @@ const Homepage = () => {
   // Search function
   const performSearch = async (page = 1) => {
     if (!searchQuery.trim() && searchCategory === 'all' && !searchFilters.minPrice && !searchFilters.maxPrice) {
-      // If no search criteria, show all services
       setSearchResults([]);
       setSearchPerformed(false);
       return;
@@ -156,6 +161,35 @@ const Homepage = () => {
     });
   };
 
+  // NEW: Handle Hire Now button click
+  const handleHireNow = async (freelancerId) => {
+    try {
+      setLoadingContact(true);
+      const token = localStorage.getItem("token");
+      
+      // Fetch freelancer contact details
+      const response = await axios.get(`http://localhost:5000/api/get-freelancer-contact/${freelancerId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        setSelectedFreelancer(response.data.data);
+        setShowContactPopup(true);
+      }
+    } catch (err) {
+      console.error("Error fetching freelancer contact:", err);
+      alert("Failed to load freelancer contact information");
+    } finally {
+      setLoadingContact(false);
+    }
+  };
+
+  // Close popup
+  const closePopup = () => {
+    setShowContactPopup(false);
+    setSelectedFreelancer(null);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -164,11 +198,10 @@ const Homepage = () => {
         const res = await axios.get("http://localhost:5000/api/verify-token", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // setMessage(res.data.message);
       } catch (err) {
         if (err.response && err.response.status === 401) {
           setMessage("Access denied. Please login first.");
-          navigate("/"); // redirect to login page
+          navigate("/");
         } else {
           setMessage("Something went wrong.");
         }
@@ -203,7 +236,7 @@ const Homepage = () => {
     };
     fetchStatistics();
 
-    // Fetch lists of freelancers ordered by rating, earned, and projects completed (for featured section)
+    // Fetch lists of freelancers ordered by rating, earned, and projects completed
     const fetchFreelancers = async () => {
         try {
         const rest = await axios.get("http://localhost:5000/api/get-freelancers", {
@@ -231,16 +264,15 @@ const Homepage = () => {
   }, []);
 
   const handleSignOut = () => {
-    localStorage.removeItem("token"); // clear JWT
-    navigate("/"); // redirect to login page
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   const handlePostService = () => {
-    navigate("/postservice"); // redirect to post service page
+    navigate("/postservice");
   };
 
   const openPopup = (service) => {
-    // You can implement a modal to show service details
     console.log("Open service details:", service);
   };
 
@@ -269,9 +301,9 @@ const Homepage = () => {
             </div>
           </div>
           <nav className="header-nav">
-            <Link to="/" className="nav-link active">
+            <a href="homepage.html" className="nav-link active">
               Browse
-            </Link>
+            </a>
             <Link to="/my-projects" className="nav-link">
               My Projects
             </Link>
@@ -357,12 +389,9 @@ const Homepage = () => {
                       onChange={(e) => setSearchCategory(e.target.value)}
                     >
                       <option value="all">All Categories</option>
-                      <option value="Visual Arts">🎨 Visual Arts</option>
-                      <option value="Academic Help">📚 Academic Help</option>
-                      <option value="Video Editing">🎬 Video Editing</option>
-                      <option value="Programming">💻 Programming</option>
-                      <option value="Marketing">📊 Marketing</option>
-                      <option value="Music & Audio">🎵 Music & Audio</option>
+                      {categories.map((cat, index) => (
+                        <option key={index} value={cat}>{cat}</option>
+                      ))}
                     </select>
 
                     <button 
@@ -521,11 +550,15 @@ const Homepage = () => {
                         </div>
 
                         <div className="card-actions">
-                          <button className="action-btn hire-btn" onClick={(e) => {
-                            e.stopPropagation();
-                            // Your hire logic here
-                          }}>
-                            Hire Now
+                          <button 
+                            className="action-btn hire-btn" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleHireNow(service.freelancer.id);
+                            }}
+                            disabled={loadingContact}
+                          >
+                            {loadingContact ? 'Loading...' : 'Hire Now'}
                           </button>
                         </div> 
                       </div>
@@ -561,7 +594,7 @@ const Homepage = () => {
               <div className="categories-grid">
                 <button className="category-card" onClick={() => {
                   setSearchCategory('Visual Arts');
-                  setShowFilters(false); // Optional: close filters when clicking category
+                  setShowFilters(false);
                 }}>
                     <div className="category-icon">🎨</div>
                     <h3>Visual Arts</h3>
@@ -611,7 +644,7 @@ const Homepage = () => {
             </div>
           </section>
 
-          {/* Featured Freelancers - Only show if not searching */}
+          {/* Featured Freelancers */}
           {!searchPerformed && (
             <section className="featured-section">
               <div className="section-header">
@@ -661,11 +694,15 @@ const Homepage = () => {
                         </div>
 
                         <div className="card-actions">
-                            <button className="action-btn hire-btn" onClick={(e) => {
+                            <button 
+                              className="action-btn hire-btn" 
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                // Your hire logic here
-                            }}>
-                                Hire Now
+                                handleHireNow(freelancer.userid._id);
+                              }}
+                              disabled={loadingContact}
+                            >
+                              {loadingContact ? 'Loading...' : 'Hire Now'}
                             </button>
                         </div> 
                     </div>
@@ -674,7 +711,7 @@ const Homepage = () => {
             </section>
           )}
 
-          {/* Featured Services - Only show if not searching */}
+          {/* Featured Services */}
           {!searchPerformed && (
             <section className="featured-section">
               <div className="section-header">
@@ -722,11 +759,15 @@ const Homepage = () => {
                         </div>
 
                         <div className="card-actions">
-                            <button className="action-btn hire-btn" onClick={(e) => {
+                            <button 
+                              className="action-btn hire-btn" 
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                // Your hire logic here
-                            }}>
-                                Hire Now
+                                handleHireNow(service.userid._id);
+                              }}
+                              disabled={loadingContact}
+                            >
+                              {loadingContact ? 'Loading...' : 'Hire Now'}
                             </button>
                         </div> 
                     </div>
@@ -736,6 +777,14 @@ const Homepage = () => {
           )}
         </main>
       </div>
+
+      {/* Contact Popup */}
+      {showContactPopup && (
+        <ContactPopup 
+          freelancer={selectedFreelancer}
+          onClose={closePopup}
+        />
+      )}
     </>
   );
 };

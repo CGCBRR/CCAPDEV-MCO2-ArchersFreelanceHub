@@ -1,0 +1,337 @@
+/* Contact Popup Styles */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.popup-container {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto; /* Move scroll to container instead of content */
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+}
+
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.popup-close:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.popup-header {
+    padding: 30px 25px 20px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.popup-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4caf50;
+    margin-bottom: 15px;
+}
+
+.popup-title h2 {
+    margin: 0;
+    color: #333;
+    font-size: 22px;
+}
+
+.popup-title p {
+    margin: 5px 0 0;
+    color: #666;
+    font-size: 13px;
+}
+
+.popup-content {
+    padding: 20px 25px 0; /* Remove bottom padding since footer has its own */
+}
+
+/* Row-based layout */
+.popup-row {
+    margin-bottom: 25px;
+}
+
+.popup-row:last-child {
+    margin-bottom: 0;
+}
+
+.popup-row-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+.popup-row-title span {
+    font-size: 18px;
+}
+
+/* Payment Methods */
+.payment-methods-popup {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.payment-method-popup-badge {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Contact List */
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-item-popup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.contact-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 80px);
+}
+
+.contact-icon-popup {
+    font-size: 20px;
+    min-width: 30px;
+}
+
+.contact-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.contact-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.contact-value {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.contact-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+.action-btn-small {
+    padding: 6px 12px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.action-btn-small:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+}
+
+.copy-btn {
+    padding: 6px 12px;
+    background-color: white;
+    color: #4caf50;
+    border: 1px solid #4caf50;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.copy-btn:hover {
+    background-color: #4caf50;
+    color: white;
+}
+
+.no-info {
+    color: #999;
+    font-style: italic;
+    padding: 10px 0;
+    margin: 0;
+}
+
+/* Footer - Now scrolls with content */
+.popup-footer {
+    margin: 25px 0 0; /* Add margin top for spacing */
+    padding: 15px 25px 25px; /* Bottom padding for last element */ /*TOP, RIGHT, BOTTOM - adjust mo nalang*/
+    background-color: #e8f5e9;
+    border-top: 1px solid #c8e6c9;
+    font-size: 14px;
+    color: #2e7d32;
+}
+
+.popup-footer p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Scrollbar Styling */
+.popup-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.popup-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.popup-container::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .popup-container {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .popup-container {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .popup-header {
+        padding: 20px 15px;
+    }
+
+    .popup-content {
+        padding: 15px 15px 0;
+    }
+
+    .popup-footer {
+        padding: 12px 15px 20px;
+        margin-top: 20px;
+    }
+
+    .contact-item-popup {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .contact-item-left {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .contact-actions {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+
+    .action-btn-small,
+    .copy-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}

@@ -76,6 +76,18 @@ const userProfileSchema = new mongoose.Schema({
   profileimage: { 
     type: String 
   },
+  // NEW: Payment Methods
+  paymentMethods: {
+    type: [String],
+    default: ['Cash']
+  },
+  // NEW: Contact Information
+  contactInfo: {
+    facebook: { type: String, default: '' },
+    email: { type: String, default: '' },
+    phone: { type: String, default: '' },
+    other: { type: String, default: '' }
+  },
   totalearned: { 
     type: Number, 
     default: 0 
@@ -319,7 +331,15 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
         username: user.username,
         bio: '',
         location: '',
-        website: '',
+        tagline: '',
+        languages: 'English, Filipino',
+        paymentMethods: ['Cash'],
+        contactInfo: {
+          facebook: '',
+          email: user.email,
+          phone: '',
+          other: ''
+        },
         profileimage: null
       });
       await profile.save();
@@ -340,10 +360,9 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
     const profileImageUrl = profile.profileimage 
       ? profile.profileimage.startsWith('http') 
         ? profile.profileimage 
-        : `/uploads/${profile.profileimage}`  // If stored as filename only
-      : '/assets/default-avatar.jpg';  // Default image
+        : `/uploads/${profile.profileimage}`
+      : '/assets/default-avatar.jpg';
 
-    
     res.json({
       email: req.user.email,
       username: profile.username,
@@ -351,11 +370,21 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
       firstname: profile.username?.split('_')[0] || '',
       lastname: profile.username?.split('_')[1] || '',
       bio: profile.bio || 'DLSU student passionate about freelancing.',
-      location: profile.location,
-      website: profile.website,
+      tagline: profile.tagline || '',
+      location: profile.location || 'Manila, Philippines',
+      languages: profile.languages || 'English, Filipino',
+      // NEW: Include payment and contact info
+      paymentMethods: profile.paymentMethods || ['Cash'],
+      contactInfo: profile.contactInfo || {
+        facebook: '',
+        email: req.user.email,
+        phone: '',
+        other: ''
+      },
       totalprojects: totalprojects || profile.totalprojects || 0,
       totalearned: totalearned || profile.totalearned || 0,
-      averagerating: parseFloat(averagerating) || profile.averagerating || 0
+      averagerating: parseFloat(averagerating) || profile.averagerating || 0,
+      createdAt: profile.createdAt
     });
   } catch (error) {
     console.error('Profile error:', error);
@@ -678,7 +707,15 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
 // *****************************************************************************************************************
 app.put('/api/update-profile', authenticateToken, async (req, res) => {
   try {
-    const { username, tagline, bio, location, languages } = req.body;
+    const { 
+      username, 
+      tagline, 
+      bio, 
+      location, 
+      languages,
+      paymentMethods,
+      contactInfo 
+    } = req.body;
     const userId = req.user.userId;
 
     // Find and update the user profile
@@ -689,9 +726,11 @@ app.put('/api/update-profile', authenticateToken, async (req, res) => {
         tagline: tagline,
         bio: bio,
         location: location,
-        languages: languages
+        languages: languages,
+        paymentMethods: paymentMethods,
+        contactInfo: contactInfo
       },
-      { new: true, upsert: true } // upsert: create if doesn't exist
+      { new: true, upsert: true }
     );
 
     // Also update the username in the User collection if needed
@@ -712,6 +751,53 @@ app.put('/api/update-profile', authenticateToken, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: 'Server error while updating profile' 
+    });
+  }
+});
+
+// *****************************************************************************************************************
+// Get Freelancer Contact Info (for Hire Now popup)
+// *****************************************************************************************************************
+app.get('/api/get-freelancer-contact/:userId', authenticateToken, async (req, res) => {
+  try {
+    const freelancerId = req.params.userId;
+    
+    // Find the freelancer's profile
+    const profile = await UserProfile.findOne({ userid: freelancerId })
+      .populate('userid', 'username email');
+    
+    if (!profile) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Freelancer not found' 
+      });
+    }
+
+    // Get the user info
+    const user = await User.findById(freelancerId);
+
+    // Format response
+    res.json({
+      success: true,
+      data: {
+        freelancerId: freelancerId,
+        name: profile.username || user?.username || 'Freelancer',
+        profileimage: profile.profileimage || '/assets/default-avatar.jpg',
+        paymentMethods: profile.paymentMethods || ['Cash'],
+        contactInfo: {
+          facebook: profile.contactInfo?.facebook || '',
+          email: profile.contactInfo?.email || user?.email || '',
+          phone: profile.contactInfo?.phone || '',
+          other: profile.contactInfo?.other || ''
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching freelancer contact:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
     });
   }
 });
