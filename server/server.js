@@ -76,12 +76,10 @@ const userProfileSchema = new mongoose.Schema({
   profileimage: { 
     type: String 
   },
-  // NEW: Payment Methods
   paymentMethods: {
     type: [String],
     default: ['Cash']
   },
-  // NEW: Contact Information
   contactInfo: {
     facebook: { type: String, default: '' },
     email: { type: String, default: '' },
@@ -373,7 +371,6 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
       tagline: profile.tagline || '',
       location: profile.location || 'Manila, Philippines',
       languages: profile.languages || 'English, Filipino',
-      // NEW: Include payment and contact info
       paymentMethods: profile.paymentMethods || ['Cash'],
       contactInfo: profile.contactInfo || {
         facebook: '',
