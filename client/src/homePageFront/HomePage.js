@@ -130,7 +130,7 @@ const Homepage = () => {
       }
     };
     fetchCategories();
-  }, []);
+  }, [navigate]);
 
   // Trigger search when inputs change
   useEffect(() => {
@@ -261,7 +261,7 @@ const Homepage = () => {
         }
     };
     fetchServices();
-  }, []);
+  }, [navigate]);
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
@@ -544,8 +544,17 @@ const Homepage = () => {
                         </div>
 
                         <div className="portfolio-grid">
-                          {service.image && service.image.length > 0 && (
-                            <img src={service.image[0]} alt="Work Sample" />
+                          {service.image && service.image.length > 0 ? (
+                            service.image.map((imgPath, i) => (
+                              <img
+                                key={i}
+                                src={imgPath} // prepend server URL if needed
+                                alt={`Work Sample ${i + 1}`}
+                                className="portfolio-img"
+                              />
+                            ))
+                          ) : (
+                            <p>No Work Samples</p>
                           )}
                         </div>
 
@@ -687,11 +696,11 @@ const Homepage = () => {
                             {freelancer.bio || "No bio available."}
                         </p>
 
-                        <div className="portfolio-grid">
+                        {/* <div className="portfolio-grid">
                             {freelancer.projects.map((project, idx) => (
                                 <img key={idx} src={project.projectimages[0]} alt={"No Project Portfolio"} />
                             ))}
-                        </div>
+                        </div> */}
 
                         <div className="card-actions">
                             <button 
@@ -755,7 +764,18 @@ const Homepage = () => {
                         </p>
 
                         <div className="portfolio-grid">
-                            <img src={service.image} alt={"No Work Samples"} />
+                          {service.image && service.image.length > 0 ? (
+                            service.image.map((imgPath, i) => (
+                              <img
+                                key={i}
+                                src={imgPath}
+                                alt={`Work Sample ${i + 1}`}
+                                className="portfolio-img"
+                              />
+                            ))
+                          ) : (
+                            <p>No Work Samples</p>
+                          )}
                         </div>
 
                         <div className="card-actions">

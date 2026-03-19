@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useDropzone } from 'react-dropzone';
 import './postServiceStyles/main.css';
-import dlsuLoginLogo from './images/dlsu-login-logo.png';
 import logo2 from './images/logo2.png';
 import profile from './images/profile.jpg';
 
@@ -38,7 +38,7 @@ const PostService = () => {
       }
     };
     verifyToken();
-  }, []);
+  }, [navigate]);
 
   const handleSignOut = () => {
     localStorage.removeItem("token"); // clear JWT
@@ -53,25 +53,64 @@ const PostService = () => {
     e.preventDefault(); // prevent page reload
 
     try {
-      // Send registration data to backend
-      const res = await axios.post("http://localhost:5000/api/addservice", 
-        { title: serviceTitle, category: serviceCategory, description: serviceDesc, 
-          startingprice: startingPrice, pricetype: priceType, deliverytime: deliveryTime, 
-          experiencelevel: experienceLevel, image: workSamples },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }},
-      );
+        // Send registration data to backend
+        const formData = new FormData();
+        formData.append("title", serviceTitle);
+        formData.append("category", serviceCategory);
+        formData.append("description", serviceDesc);
+        formData.append("startingprice", Number(startingPrice));
+        formData.append("pricetype", priceType);
+        formData.append("deliverytime", deliveryTime);
+        formData.append("experiencelevel", experienceLevel);
 
-      setMessage(""); // clear any previous messages
-      alert("Succesfully posted your service! It will now be visible to potential clients.");
-      navigate("/homepage"); // redirect to homepage
+        // append multiple images
+        workSamples.forEach((file) => {
+            formData.append("images", file);
+        });
+
+        const res = await axios.post("http://localhost:5000/api/addservice", formData, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+        },
+        });
+
+        setMessage(""); // clear any previous messages
+        alert("Succesfully posted your service! It will now be visible to potential clients.");
+        navigate("/homepage"); // redirect to homepage
     } catch (err) {
-      setMessage(err.response?.data?.message || "Something went wrong");
+        setMessage(err.response?.data?.message || "Something went wrong");
     }
   }
 
   const handleCancel = () => {
     navigate("/homepage"); // redirect to homepage
   };
+
+  const onDrop = (acceptedfiles) => {
+    const mappedFiles = acceptedfiles.map((file) =>
+        Object.assign(file, {
+            preview: URL.createObjectURL(file),
+        })
+    );
+    setWorkSamples((prev) => [...prev, ...mappedFiles]);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop,
+    multiple: true,
+  });
+
+  const uploadFiles = async () => {
+    const formData = new FormData();
+    workSamples.forEach((file) => {
+        formData.append("images", file);
+    });
+    await axios.post("http://localhost:5000/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+  }
 
   return (
     <>
@@ -271,37 +310,21 @@ const PostService = () => {
                     {/* Portfolio/Work Samples */}
                     <div className="form-section">
                         <h3 className="form-section-title">Upload Work Samples</h3>
-                        <div className="upload-area">
-                            <p className="upload-text">
-                            Drag &amp; drop files or{" "}
-                            <span className="browse-text">browse</span>
-                            </p>
-                            <p className="upload-hint">
-                            Supported: JPG, PNG, PDF, MP4 (max 10MB each)
-                            </p>
+                        <div className="upload-area" {...getRootProps()}>
+                            <input {...getInputProps()} />
+                            <p className="upload-text">Drag & drop an image here, or click to select</p>
+                            <p className="upload-hint">Supported: JPG & PNG (max 10MB each)</p>
                         </div>
                         <div className="file-list">
-                            <div className="file-item">
-                            <div className="file-info">
-                                <span className="file-name">logo-design-sample.jpg</span>
-                                <span className="file-size">2.4 MB</span>
-                            </div>
-                            <button className="file-remove">×</button>
-                            </div>
-                            <div className="file-item">
-                            <div className="file-info">
-                                <span className="file-name">character-design.png</span>
-                                <span className="file-size">5.1 MB</span>
-                            </div>
-                            <button className="file-remove">×</button>
-                            </div>
-                            <div className="file-item">
-                            <div className="file-info">
-                                <span className="file-name">portfolio.pdf</span>
-                                <span className="file-size">3.2 MB</span>
-                            </div>
-                            <button className="file-remove">×</button>
-                            </div>
+                            {workSamples.map((file, index) => (
+                                <div className="file-item">
+                                    <div className="file-info">
+                                        <span className="file-name">{file.name}</span>
+                                        <span className="file-size">{(file.size / 1024).toFixed(2)} KB</span>
+                                    </div>
+                                    <button className="file-remove">×</button>
+                                </div>
+                            ))}
                         </div>
                         <div className="file-counter">3/5 files uploaded</div>
                     </div>

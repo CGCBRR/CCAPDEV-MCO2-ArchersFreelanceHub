@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require("multer");
+const path = require("path");
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +12,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "../client/public/uploads")));
+
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -464,7 +468,7 @@ app.get('/api/get-services', authenticateToken, async (req, res) => {
       pricetype: service.pricetype,
       deliverytime: service.deliverytime,
       experiencelevel: service.experiencelevel,
-      image: []
+      image: service.image.map(img => `http://localhost:5000/${img}`)
     }));
     
     res.json(services);
@@ -495,20 +499,33 @@ app.get('/api/get-my-services', authenticateToken, async (req, res) => {
 // Post a Service
 // *****************************************************************************************************************
 // Post Service
-app.post("/api/addservice", authenticateToken, async (req, res) => {
-  const { title, category, description, startingprice, pricetype, deliverytime, experiencelevel, Image } = req.body;
-  const userid = req.user.userId; // get userid from token
-  const service = new Service({ 
-        userid: userid, title: title, category: category, 
-        description: description, startingprice: startingprice, pricetype: pricetype, 
-        deliverytime: deliverytime, experiencelevel: experiencelevel, image: Image });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, "../client/public/uploads")),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
 
-  try {
+app.post("/api/addservice", authenticateToken, upload.array("images"), async (req, res) => {
+  try {  
+    const userid = req.user.userId; // get userid from token
+    const imagePaths = req.files.map(file => `uploads/${file.filename}`);
+
+    const service = new Service({
+      userid,
+      title: req.body.title,
+      category: req.body.category,
+      description: req.body.description,
+      startingprice: req.body.startingprice,
+      pricetype: req.body.pricetype,
+      deliverytime: req.body.deliverytime,
+      experiencelevel: req.body.experiencelevel,
+      image: imagePaths, // array of file paths
+    });
+  
     await service.save();
     res.json({ message: "Service posted successfully!" });
   } catch (err) {
     console.error("Error posting service:", err);
-    console.log("Received data:", { userid, title, category, description, startingprice, pricetype, deliverytime, experiencelevel, Image });
     res.status(500).json({ message: "Error posting service. " + err.message });
   }
 });
@@ -520,17 +537,6 @@ app.get("/api/get-hirer-projects", authenticateToken, async (req, res) => {
 
   const projects = await Project.find({ hirerid: userid }).populate("serviceid").populate("userid", "username");
   res.json(projects);
-});
-
-
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Server is running!' });
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
 
 //update profile WIP
@@ -797,4 +803,18 @@ app.get('/api/get-freelancer-contact/:userId', authenticateToken, async (req, re
       message: 'Server error' 
     });
   }
+});
+
+
+
+// *****************************************************************************************************************
+// DON'T MOVE
+// *****************************************************************************************************************
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is running!' });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
