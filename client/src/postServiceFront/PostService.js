@@ -54,6 +54,8 @@ const PostService = () => {
 
     try {
         // Send registration data to backend
+        const token = localStorage.getItem("token");
+
         const formData = new FormData();
         formData.append("title", serviceTitle);
         formData.append("category", serviceCategory);
@@ -70,7 +72,7 @@ const PostService = () => {
 
         const res = await axios.post("http://localhost:5000/api/addservice", formData, {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
         },
         });
@@ -326,7 +328,7 @@ const PostService = () => {
                                 </div>
                             ))}
                         </div>
-                        <div className="file-counter">3/5 files uploaded</div>
+                        {/* <div className="file-counter">3/5 files uploaded</div> */}
                     </div>
 
                     {/* Submit Section */}

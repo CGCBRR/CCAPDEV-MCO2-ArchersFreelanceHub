@@ -506,11 +506,7 @@ const Homepage = () => {
                       <div key={index} className="freelancer-card" onClick={() => openPopup(service)}>
                         <div className="card-header">
                           <div className="user-info">
-                            <img 
-                              src={service.image?.[0] || profile} 
-                              alt={service.freelancer.fullName} 
-                              className="user-avatar" 
-                            />
+                            <img src={service.useprofileid.profileimage || profile} alt={service.title} className="user-avatar" />
                             <div>
                               <h3 className="user-name">{service.title}</h3>
                               <p className="user-meta">by {service.freelancer.fullName}</p>
@@ -669,7 +665,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={freelancer.profileimage || profile} alt={freelancer.userid.username} className="user-avatar" />
+                                <img src={freelancer.profileimage} alt={freelancer.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{freelancer.firstname} {freelancer.lastname}</h3>
                                     <p className="user-meta">{freelancer.userid.username}</p>
@@ -736,7 +732,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={service.image || profile} alt={service.userid.username} className="user-avatar" />
+                                <img src={service.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={service.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{service.title}</h3>
                                     <p className="user-meta">{service.userid.username}</p>

@@ -117,6 +117,10 @@ const serviceSchema = new mongoose.Schema({
     ref: "User",                          // reference to User collection
     required: true
   },
+  userprofileid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserProfile"
+  },
   title: { type: String, required: true },
   category: { type: String, required: true },
   description: { type: String, required: true, maxlength: 2000 },
@@ -454,12 +458,18 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
 app.get('/api/get-services', authenticateToken, async (req, res) => {
   try {
     // Get all users
-    const serviceSchema = await Service.find().populate('userid', 'username');
+    const serviceSchema = await Service.find()
+                          .populate('userid', 'username')
+                          .populate('userprofileid', 'profileimage');
     
     const services = serviceSchema.map(service => ({
       userid: {
         username: service.userid.username,
         _id: service.userid._id
+      },
+      userprofileid: {
+        profileimage: service.userprofileid.profileimage || '/assets/default-avatar.jpg',
+        _id: service.userprofileid?._id || null
       },
       title: service.title,
       category: service.category,
@@ -510,8 +520,16 @@ app.post("/api/addservice", authenticateToken, upload.array("images"), async (re
     const userid = req.user.userId; // get userid from token
     const imagePaths = req.files.map(file => `uploads/${file.filename}`);
 
+    const userProfile = await UserProfile.findOne({ userid });
+    if (!userProfile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
+
+
+
     const service = new Service({
       userid,
+      userprofileid: userProfile._id,
       title: req.body.title,
       category: req.body.category,
       description: req.body.description,
