@@ -104,6 +104,11 @@ const PostService = () => {
     multiple: true,
   });
 
+  const removeFile = (fileName) => {
+    setWorkSamples((prevFiles) => prevFiles.filter(file => file.name !== fileName));
+  };
+
+
   const uploadFiles = async () => {
     const formData = new FormData();
     workSamples.forEach((file) => {
@@ -324,7 +329,7 @@ const PostService = () => {
                                         <span className="file-name">{file.name}</span>
                                         <span className="file-size">{(file.size / 1024).toFixed(2)} KB</span>
                                     </div>
-                                    <button className="file-remove">×</button>
+                                    <button className="file-remove" onClick={() => removeFile(file.name)}>×</button>
                                 </div>
                             ))}
                         </div>
