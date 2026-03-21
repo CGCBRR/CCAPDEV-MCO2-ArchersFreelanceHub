@@ -14,6 +14,7 @@ const ProfilePage = () => {
     const [servicesLoading, setServicesLoading] = useState(true);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate(); 
+    const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -45,7 +46,17 @@ const ProfilePage = () => {
             createdAt: res.data.createdAt || new Date().toLocaleDateString(),
             ...res.data
         });
-            console.log("Fetched user profile:", res.data);
+        
+        // Check if user is admin (based on email)
+        const adminEmails = [
+            'carlo_barreo@dlsu.edu.ph',
+            'daniel_rebudiao@dlsu.edu.ph',
+            'francis_balcruz@dlsu.edu.ph',
+            'anna_papa@dlsu.edu.ph'
+        ];
+        setIsAdmin(adminEmails.includes(res.data.email));
+        
+        console.log("Fetched user profile:", res.data);
         } catch (err) {
             console.error("Error fetching user profile:", err);
             setMessage("Error fetching profile");
@@ -224,20 +235,22 @@ if (!userProfile) {
                         
                         <div className="profile-header-right">
                             
-                            {/* Admin Button */}
-                            <div className="profile-actions admin-container">
-                                <button 
-                                    className="btn-admin" 
-                                    onClick={handleAdminDashboard}
-                                >
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2"/>
-                                        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2"/>
-                                        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2"/>
-                                    </svg>
-                                    Admin
-                                </button>
-                            </div>
+                            {/* Admin Button - Only show for admin users */}
+                            {isAdmin && (
+                                <div className="profile-actions admin-container">
+                                    <button 
+                                        className="btn-admin" 
+                                        onClick={handleAdminDashboard}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2"/>
+                                            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2"/>
+                                            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2"/>
+                                        </svg>
+                                        Admin
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Edit Profile and Share */}
                             <div className="profile-actions">

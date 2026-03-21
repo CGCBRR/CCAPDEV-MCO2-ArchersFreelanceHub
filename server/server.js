@@ -158,6 +158,28 @@ const projectSchema = new mongoose.Schema({
   projectimages: [{ type: String }]
 });
 
+// Category Schema for Admin Dashboard
+const categorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  icon: {
+    type: String,
+    default: '📁'
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 // Add the virtual schema Projects to User schema
 // Used to connect yung projects with the same userid as UserProfile (done with mongoose .populate(), research nalang)
 userProfileSchema.virtual("projects", { 
@@ -175,6 +197,36 @@ const User = mongoose.model('User', userSchema);
 const UserProfile = mongoose.model("UserProfile", userProfileSchema);
 const Service = mongoose.model("Service", serviceSchema);
 const Project = mongoose.model("Project", projectSchema);
+const Category = mongoose.model("Category", categorySchema);
+
+// Seed default categories if none exist
+const seedDefaultCategories = async () => {
+  try {
+    const count = await Category.countDocuments();
+    if (count === 0) {
+      console.log('No categories found. Seeding default categories...');
+      const defaultCategories = [
+        { name: 'Visual Arts', icon: '🎨', description: 'Design, illustration, photography' },
+        { name: 'Academic Help', icon: '📚', description: 'Tutoring, research, editing' },
+        { name: 'Video Editing', icon: '🎬', description: 'Production, post-processing' },
+        { name: 'Programming', icon: '💻', description: 'Web, mobile, software' },
+        { name: 'Marketing', icon: '📊', description: 'Social media, SEO, content' },
+        { name: 'Music & Audio', icon: '🎵', description: 'Production, Mixing, Voice-over' }
+      ];
+      await Category.insertMany(defaultCategories);
+      console.log('Default categories seeded successfully!');
+    } else {
+      console.log(`Found ${count} existing categories.`);
+    }
+  } catch (error) {
+    console.error('Error seeding categories:', error);
+  }
+};
+
+// Call the seed function after database connection is established
+setTimeout(() => {
+  seedDefaultCategories();
+}, 1000);
 
 // Middleware to verify token
 const authenticateToken = (req, res, next) => {
@@ -208,6 +260,19 @@ userProfileSchema.pre('save', async function(next) {
   }
   next();
 });
+
+// Helper function to check if user is admin
+const isAdmin = async (userId) => {
+  const user = await User.findById(userId);
+  // List of admin emails
+  const adminEmails = [
+    'carlo_barreo@dlsu.edu.ph',
+    'daniel_rebudiao@dlsu.edu.ph',
+    'francis_balcruz@dlsu.edu.ph',
+    'anna_papa@dlsu.edu.ph'
+  ];
+  return adminEmails.includes(user?.email);
+};
 
 
 
@@ -505,6 +570,212 @@ app.get('/api/get-my-services', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+
+// ==================== ADMIN CATEGORY MANAGEMENT ENDPOINTS ====================
+
+// *****************************************************************************************************************
+// Admin - Get all categories
+// *****************************************************************************************************************
+app.get('/api/admin/categories', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const categories = await Category.find().sort({ createdAt: -1 });
+    
+    // Get service count for each category
+    const categoriesWithCount = await Promise.all(categories.map(async (category) => {
+      const serviceCount = await Service.countDocuments({ category: category.name });
+      return {
+        _id: category._id,
+        name: category.name,
+        icon: category.icon,
+        description: category.description,
+        serviceCount: serviceCount,
+        createdAt: category.createdAt
+      };
+    }));
+
+    res.json({
+      success: true,
+      data: categoriesWithCount
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Admin - Create new category
+// *****************************************************************************************************************
+app.post('/api/admin/categories', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const { name, icon, description } = req.body;
+
+    // Validate input
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ success: false, message: 'Category name is required' });
+    }
+
+    // Check if category already exists
+    const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+    if (existingCategory) {
+      return res.status(400).json({ success: false, message: 'Category already exists' });
+    }
+
+    // Create new category
+    const category = new Category({
+      name: name.trim(),
+      icon: icon || '📁',
+      description: description || ''
+    });
+
+    await category.save();
+
+    res.json({
+      success: true,
+      message: 'Category created successfully',
+      data: category
+    });
+  } catch (error) {
+    console.error('Error creating category:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Admin - Update category
+// *****************************************************************************************************************
+app.put('/api/admin/categories/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const { id } = req.params;
+    const { name, icon, description } = req.body;
+
+    // Check if category exists
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+
+    // Check if new name conflicts with existing category (excluding current one)
+    if (name && name !== category.name) {
+      const existingCategory = await Category.findOne({ 
+        name: { $regex: new RegExp(`^${name}$`, 'i') },
+        _id: { $ne: id }
+      });
+      if (existingCategory) {
+        return res.status(400).json({ success: false, message: 'Category name already exists' });
+      }
+    }
+
+    // Update category
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      {
+        name: name?.trim() || category.name,
+        icon: icon || category.icon,
+        description: description !== undefined ? description : category.description
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Category updated successfully',
+      data: updatedCategory
+    });
+  } catch (error) {
+    console.error('Error updating category:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Admin - Delete category
+// *****************************************************************************************************************
+app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const { id } = req.params;
+
+    // Check if category exists
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+
+    // Check if category is being used by any service
+    const servicesUsingCategory = await Service.countDocuments({ category: category.name });
+    if (servicesUsingCategory > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Cannot delete category. It is used by ${servicesUsingCategory} service(s).` 
+      });
+    }
+
+    // Delete category
+    await Category.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Category deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Public - Get all categories (for frontend dropdowns)
+// *****************************************************************************************************************
+app.get('/api/public/categories', async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    
+    // If no categories in DB, return default list
+    if (categories.length === 0) {
+      const defaultCategories = [
+        { name: 'Visual Arts', icon: '🎨', description: 'Design, illustration, photography' },
+        { name: 'Academic Help', icon: '📚', description: 'Tutoring, research, editing' },
+        { name: 'Video Editing', icon: '🎬', description: 'Production, post-processing' },
+        { name: 'Programming', icon: '💻', description: 'Web, mobile, software' },
+        { name: 'Marketing', icon: '📊', description: 'Social media, SEO, content' },
+        { name: 'Music & Audio', icon: '🎵', description: 'Production, Mixing, Voice-over' }
+      ];
+      return res.json({ success: true, data: defaultCategories });
+    }
+    
+    res.json({ success: true, data: categories });
+  } catch (error) {
+    console.error('Error fetching public categories:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ==================== END ADMIN CATEGORY MANAGEMENT ====================
+
+
+
 // *****************************************************************************************************************
 // Post a Service
 // *****************************************************************************************************************
@@ -683,10 +954,22 @@ app.get('/api/search-services', authenticateToken, async (req, res) => {
   }
 });
 
-// Get unique categories for filter dropdown
+// Get unique categories for filter dropdown (updated to use Category collection)
 app.get('/api/service-categories', authenticateToken, async (req, res) => {
   try {
-    const categories = await Service.distinct('category');
+    // First try to get categories from Category collection
+    const categoriesFromDB = await Category.find().sort({ name: 1 });
+    
+    if (categoriesFromDB.length > 0) {
+      const categoryNames = categoriesFromDB.map(cat => cat.name);
+      return res.json({
+        success: true,
+        data: categoryNames
+      });
+    }
+    
+    // Fallback to getting distinct from services
+    const categoriesFromServices = await Service.distinct('category');
     
     // Ensure we have at least your default categories
     const defaultCategories = [
@@ -699,7 +982,7 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
     ];
     
     // Combine existing categories with defaults (removing duplicates)
-    const allCategories = [...new Set([...categories, ...defaultCategories])];
+    const allCategories = [...new Set([...categoriesFromServices, ...defaultCategories])];
     
     res.json({
       success: true,
