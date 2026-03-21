@@ -626,6 +626,7 @@ app.get('/api/search-services', authenticateToken, async (req, res) => {
         path: 'userid',
         select: 'username email'
       })
+      .populate('userprofileid', 'profileimage')
       .sort(sortOption)
       .skip(skip)
       .limit(parseInt(limit));
@@ -643,6 +644,10 @@ app.get('/api/search-services', authenticateToken, async (req, res) => {
       
       return {
         _id: service._id,
+        userprofileid: {
+          profileimage: service.userprofileid.profileimage || '/assets/default-avatar.jpg',
+          _id: service.userprofileid?._id || null
+        },
         title: service.title,
         category: service.category,
         description: service.description,

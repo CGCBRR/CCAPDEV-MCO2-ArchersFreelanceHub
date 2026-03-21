@@ -506,7 +506,7 @@ const Homepage = () => {
                       <div key={index} className="freelancer-card" onClick={() => openPopup(service)}>
                         <div className="card-header">
                           <div className="user-info">
-                            <img src={service.useprofileid.profileimage || profile} alt={service.title} className="user-avatar" />
+                            <img src={service.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={service.title} className="user-avatar" />
                             <div>
                               <h3 className="user-name">{service.title}</h3>
                               <p className="user-meta">by {service.freelancer.fullName}</p>
