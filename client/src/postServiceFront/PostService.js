@@ -17,6 +17,7 @@ const PostService = () => {
   const [deliveryTime, setDeliveryTime] = useState("1-2");
   const [experienceLevel, setExperienceLevel] = useState("entry");
   const [workSamples, setWorkSamples] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const navigate = useNavigate();
 
@@ -39,6 +40,33 @@ const PostService = () => {
     };
     verifyToken();
   }, [navigate]);
+
+  // Fetch categories for dropdown
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/public/categories", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.success) {
+          setCategories(response.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        // Fallback to hardcoded categories if API fails
+        setCategories([
+          { name: 'Visual Arts', icon: '🎨' },
+          { name: 'Academic Help', icon: '📚' },
+          { name: 'Video Editing', icon: '🎬' },
+          { name: 'Programming', icon: '💻' },
+          { name: 'Marketing', icon: '📊' },
+          { name: 'Music & Audio', icon: '🎵' }
+        ]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem("token"); // clear JWT
@@ -159,7 +187,7 @@ const PostService = () => {
             </button>
             <div
                 className="profile-icon"
-                onClick={() => (window.location.href = "profile.html")}
+                onClick={() => navigate("/my-projects")}
                 style={{ cursor: "pointer" }}
             >
                 <img src={profile} alt="Profile" />
@@ -201,7 +229,7 @@ const PostService = () => {
                         </div>
                     </div>
 
-                    {/* Service Category */}
+                    {/* Service Category - Dynamic from Database */}
                     <div className="form-section">
                         <h3 className="form-section-title">
                             Service Category <span className="required">*</span>
@@ -211,28 +239,16 @@ const PostService = () => {
                                 id="serviceCategory"
                                 value={serviceCategory}
                                 onChange={(e) => setServiceCategory(e.target.value)}
+                                required
                             >
-                                <option value="" disabled="" selected="">
+                                <option value="" disabled>
                                     Select a category
                                 </option>
-                                <option value="Visual Arts" selected="">
-                                    🎨 Visual Arts (Design, Illustration, Photography)
-                                </option>
-                                <option value="Academic">
-                                    📚 Academic Help (Tutoring, Research, Editing)
-                                </option>
-                                <option value="Video">
-                                    🎬 Video Editing (Production, Post-processing)
-                                </option>
-                                <option value="Programming">
-                                    💻 Programming (Web Dev, Mobile Apps, Software)
-                                </option>
-                                <option value="Marketing">
-                                    📊 Marketing (Social Media, SEO, Content)
-                                </option>
-                                <option value="Music">
-                                    🎵 Music &amp; Audio (Production, Mixing, Voice-over)
-                                </option>
+                                {categories.map((category, index) => (
+                                    <option key={index} value={category.name}>
+                                        {category.icon} {category.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>

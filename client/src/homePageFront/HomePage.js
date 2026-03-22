@@ -119,14 +119,33 @@ const Homepage = () => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/service-categories", {
+        const response = await axios.get("http://localhost:5000/api/public/categories", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
+          // Store full category objects instead of just names
           setCategories(response.data.data);
         }
       } catch (err) {
         console.error("Error fetching categories:", err);
+        // Fallback to service-categories endpoint
+        try {
+          const token = localStorage.getItem("token");
+          const fallbackResponse = await axios.get("http://localhost:5000/api/service-categories", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (fallbackResponse.data.success) {
+            // For fallback, create objects with default icons
+            const categoryObjects = fallbackResponse.data.data.map(name => ({
+              name: name,
+              icon: '📁',
+              description: 'Explore this category'
+            }));
+            setCategories(categoryObjects);
+          }
+        } catch (fallbackErr) {
+          console.error("Error fetching fallback categories:", fallbackErr);
+        }
       }
     };
     fetchCategories();
@@ -390,7 +409,7 @@ const Homepage = () => {
                     >
                       <option value="all">All Categories</option>
                       {categories.map((cat, index) => (
-                        <option key={index} value={cat}>{cat}</option>
+                        <option key={index} value={cat.name}>{cat.icon} {cat.name}</option>
                       ))}
                     </select>
 
@@ -587,7 +606,7 @@ const Homepage = () => {
             </section>
           )}
 
-          {/* EXPLORE CATEGORIES */}
+          {/* EXPLORE CATEGORIES - Dynamic from Database */}
           <section className="categories-section">
             <div className="section-header">
               <div>
@@ -597,54 +616,25 @@ const Homepage = () => {
             </div>
             <div className="categories-wrapper">
               <div className="categories-grid">
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Visual Arts');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">🎨</div>
-                    <h3>Visual Arts</h3>
-                    <p>Design, illustration, photography</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Academic Help');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">📚</div>
-                    <h3>Academic Help</h3>
-                    <p>Tutoring, research, editing</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Video Editing');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">🎬</div>
-                    <h3>Video Editing</h3>
-                    <p>Production, post-processing</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Programming');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">💻</div>
-                    <h3>Programming</h3>
-                    <p>Web, mobile, software</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Marketing');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">📊</div>
-                    <h3>Marketing</h3>
-                    <p>Social media, SEO, content</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Music & Audio');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">🎵</div>
-                    <h3>Music & Audio</h3>
-                    <p>Production, Mixing, Voice-over</p>
-                </button>
+                {categories.length > 0 ? (
+                  categories.map((category, index) => (
+                    <button 
+                      key={index}
+                      className="category-card" 
+                      onClick={() => {
+                        setSearchCategory(category.name);
+                        setShowFilters(false);
+                      }}
+                    >
+                      <div className="category-icon">{category.icon || '📁'}</div>
+                      <h3>{category.name}</h3>
+                      <p>{category.description || 'Explore this category'}</p>
+                    </button>
+                  ))
+                ) : (
+                  // Fallback loading state
+                  <div className="loading-categories">Loading categories...</div>
+                )}
               </div>
             </div>
           </section>
