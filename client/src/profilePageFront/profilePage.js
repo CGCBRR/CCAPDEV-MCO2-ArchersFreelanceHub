@@ -317,7 +317,7 @@ if (!userProfile) {
                         </div>
                         <div className="stat-card">
                             <span className="stat-number" id="ratingNum">
-                                {userProfile.averagerating || 0}
+                                {userProfile.averagerating.toFixed(1) || 0}
                             </span>
                             <span className="stat-label">Rating</span>
                         </div>

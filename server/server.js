@@ -131,6 +131,33 @@ const serviceSchema = new mongoose.Schema({
   image: [{ type: String }]
 });
 
+// Projects schema - contains the list of projects posted by hirers and assigned to freelancers. 
+// Each project is linked to a service and a hirer (user).
+const projectSchema = new mongoose.Schema({
+  userid: {                               // this is the freelancer assigned to the project
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "User",                          // reference to User collection
+    required: true
+  },
+  hirerid: {                              // this is the hirer who posted the project
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "User",                          // reference to User collection
+    required: true
+  },
+  serviceid: {                            // this is the service that the project is based on
+    type: mongoose.Schema.Types.ObjectId, // foreign key
+    ref: "Service",                       // reference to Service collection
+    required: true
+  },
+  title: { type: String, required: true },
+  description: { type: String, required: true, maxlength: 2000 },
+  budget: { type: Number, required: true },
+  deadline: { type: Date, required: true },
+  status: { type: String, default: "open" },
+  rating: { type: Number, default: 0 },
+  projectimages: [{ type: String }]
+});
+
 // Category Schema for Admin Dashboard
 const categorySchema = new mongoose.Schema({
   name: {
@@ -211,6 +238,7 @@ userProfileSchema.set('toJSON', { virtuals: true });
 const User = mongoose.model('User', userSchema);
 const UserProfile = mongoose.model("UserProfile", userProfileSchema);
 const Service = mongoose.model("Service", serviceSchema);
+const Project = mongoose.model("Project", projectSchema);
 const Category = mongoose.model("Category", categorySchema);
 const Comment = mongoose.model("Comment", commentSchema);
 
