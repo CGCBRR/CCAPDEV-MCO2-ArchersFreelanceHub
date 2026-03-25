@@ -210,7 +210,6 @@ userProfileSchema.set('toJSON', { virtuals: true });
 const User = mongoose.model('User', userSchema);
 const UserProfile = mongoose.model("UserProfile", userProfileSchema);
 const Service = mongoose.model("Service", serviceSchema);
-const Project = mongoose.model("Project", projectSchema);
 const Category = mongoose.model("Category", categorySchema);
 const Comment = mongoose.model("Comment", commentSchema);
 
