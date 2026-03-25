@@ -81,22 +81,8 @@
 }
 
 /* Row-based layout */
-.popup-row {
-    margin-bottom: 25px;
-}
-
 .popup-row:last-child {
     margin-bottom: 0;
-}
-
-.popup-row-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 15px 0;
-    font-size: 16px;
-    color: #333;
-    font-weight: 600;
 }
 
 .popup-row-title span {

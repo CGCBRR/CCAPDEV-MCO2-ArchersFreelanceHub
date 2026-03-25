@@ -180,6 +180,43 @@ const categorySchema = new mongoose.Schema({
   }
 });
 
+// Comments Schema
+const commentSchema = new mongoose.Schema({
+  userid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  freelancerid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  freelancername: {
+    type: String,
+    required: true
+  },
+  username: {
+    type: String,
+    required: true
+  },
+  userrating: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5
+  },
+  usercomment: {
+    type: String,
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+
 // Add the virtual schema Projects to User schema
 // Used to connect yung projects with the same userid as UserProfile (done with mongoose .populate(), research nalang)
 userProfileSchema.virtual("projects", { 
@@ -198,6 +235,7 @@ const UserProfile = mongoose.model("UserProfile", userProfileSchema);
 const Service = mongoose.model("Service", serviceSchema);
 const Project = mongoose.model("Project", projectSchema);
 const Category = mongoose.model("Category", categorySchema);
+const Comment = mongoose.model("Comment", commentSchema);
 
 // Seed default categories if none exist
 const seedDefaultCategories = async () => {
@@ -796,9 +834,7 @@ app.post("/api/addservice", authenticateToken, upload.array("images"), async (re
       return res.status(404).json({ message: "User profile not found" });
     }
 
-
-
-    const service = new Service({
+    const comment = new Comment({
       userid,
       userprofileid: userProfile._id,
       title: req.body.title,
@@ -1111,7 +1147,115 @@ app.get('/api/get-freelancer-contact/:userId', authenticateToken, async (req, re
   }
 });
 
+// *****************************************************************************************************************
+// Ratings and Comments
+// *****************************************************************************************************************
+// Get Comments
+app.get('/api/comments/:freelancerId', async (req, res) => {
+  try {
+    console.log('Fetching comments for freelancerId:', req.params.freelancerId);
+    
+    const comments = await Comment.find({
+      freelancerid: req.params.freelancerId
+    }).sort({ createdAt: -1 });
+    
+    console.log('Found comments:', comments.length);
+    res.json(comments);
+  } catch (error) {  // Added 'error' parameter
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ message: 'Error fetching comments', error: error.message });
+  }
+});
 
+// Post Comment
+app.post('/api/comments', async (req, res) => {
+  try {
+    const { freelancerid, freelancername, usercomment, userrating, username, userid } = req.body;
+    
+    // Validate required fields
+    if (!freelancerid) {
+      return res.status(400).json({ message: 'Missing required field: Freelancer Id' });
+    }
+    if (!usercomment) {
+      return res.status(400).json({ message: 'Missing required field: Comment' });
+    }
+    if (!userrating) {
+      return res.status(400).json({ message: 'Missing required field: Rating' });
+    }
+    if (!username) {
+      return res.status(400).json({ message: 'Missing required field: User Name' });
+    }
+    
+    // Create new comment
+    const newComment = new Comment({
+      userid: userid || new mongoose.Types.ObjectId(), // If no userId, create temporary one
+      freelancerid: freelancerid,
+      freelancername: freelancername,
+      username: username || 'Guest User',
+      userrating: userrating,
+      usercomment: usercomment
+    });
+    
+    await newComment.save();
+    
+    // Update freelancer's average rating
+    const allComments = await Comment.find({ freelancerid: freelancerid });
+    const averageRating = allComments.reduce((sum, c) => sum + c.userrating, 0) / allComments.length;
+    
+    await UserProfile.findOneAndUpdate(
+      { userid: freelancerid },
+      { averagerating: averageRating }
+    );
+    
+    res.status(201).json({ 
+      message: 'Comment posted successfully', 
+      comment: newComment,
+      averageRating: averageRating
+    });
+  } catch (error) {
+    console.error('Error posting comment:', error);
+    res.status(500).json({ message: 'Error posting comment', error: error.message });
+  }
+});
+
+// Delete comment
+app.delete('/api/comments/:commentId', async (req, res) => {
+  try {
+    const comment = await Comment.findByIdAndDelete(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+    res.json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ message: 'Error deleting comment', error: error.message });
+  }
+});
+
+// Update comment
+app.put('/api/comments/:commentId', async (req, res) => {
+  try {
+    const { comment, rating } = req.body;
+    const updatedComment = await Comment.findByIdAndUpdate(
+      req.params.commentId,
+      { 
+        usercomment: comment, 
+        userrating: rating,
+        updatedAt: Date.now()
+      },
+      { new: true }
+    );
+    
+    if (!updatedComment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+    
+    res.json({ message: 'Comment updated successfully', comment: updatedComment });
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    res.status(500).json({ message: 'Error updating comment', error: error.message });
+  }
+});
 
 // *****************************************************************************************************************
 // DON'T MOVE

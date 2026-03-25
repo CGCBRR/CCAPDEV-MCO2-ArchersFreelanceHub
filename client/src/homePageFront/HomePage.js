@@ -9,6 +9,7 @@ import ContactPopup from './ContactPopup';
 
 const Homepage = () => {
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [statistics, setStatistics] = useState({
     totalActiveUsers: 0,
@@ -44,6 +45,9 @@ const Homepage = () => {
     totalCount: 0,
     hasMore: false
   });
+
+  // Comment States
+  const [currentUser, setCurrentUser] = useState(null);
   
   const navigate = useNavigate();
 
@@ -125,6 +129,7 @@ const Homepage = () => {
         if (response.data.success) {
           // Store full category objects instead of just names
           setCategories(response.data.data);
+          console.log("Fetched categories:", response.data.data);
         }
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -149,7 +154,7 @@ const Homepage = () => {
       }
     };
     fetchCategories();
-  }, [navigate]);
+  }, []);
 
   // Trigger search when inputs change
   useEffect(() => {
@@ -194,6 +199,7 @@ const Homepage = () => {
       if (response.data.success) {
         setSelectedFreelancer(response.data.data);
         setShowContactPopup(true);
+        console.log("Fetched hire now:", response.data.data);
       }
     } catch (err) {
       console.error("Error fetching freelancer contact:", err);
@@ -212,14 +218,24 @@ const Homepage = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
+    console.log("3rd useEffect")
+    if (!token) {
+      console.log("Invalid Token")
+      setMessage("Please login first.");
+      navigate("/");
+      return;
+    }
+
     const verifyToken = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/verify-token", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(`Token verified succesfully: ${token}`);
       } catch (err) {
         if (err.response && err.response.status === 401) {
           setMessage("Access denied. Please login first.");
+          console.log(`Access denied. Please login first. ${err.response}`);
           navigate("/");
         } else {
           setMessage("Something went wrong.");
@@ -249,6 +265,7 @@ const Homepage = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStatistics(res.data);
+        console.log("Fetched user statistics:", res.data);
       } catch (err) {
         console.error("Error fetching statistics:", err);
       }
@@ -262,6 +279,7 @@ const Homepage = () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         setFreelancers(rest.data);
+        console.log("Fetched freelancer:", rest.data);
         } catch (err) {
         console.error("Error fetching freelancers:", err);
         }
@@ -275,14 +293,22 @@ const Homepage = () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         setServices(rest.data);
+        console.log("Fetched services:", rest.data);
         } catch (err) {
         console.error("Error fetching services:", err);
         }
     };
     fetchServices();
-  }, [navigate]);
+
+    // Get user
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+        setCurrentUser(JSON.parse(userStr));
+    }
+  }, []);
 
   const handleSignOut = () => {
+    console.log("Handle Sign-out")
     localStorage.removeItem("token");
     navigate("/");
   };
@@ -296,7 +322,7 @@ const Homepage = () => {
   };
 
   // Determine which services to display
-  const displayedServices = searchPerformed ? searchResults : services;
+  // const displayedServices = searchPerformed ? searchResults : services;
 
   return (
     <>
@@ -525,7 +551,7 @@ const Homepage = () => {
                       <div key={index} className="freelancer-card" onClick={() => openPopup(service)}>
                         <div className="card-header">
                           <div className="user-info">
-                            <img src={service.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={service.title} className="user-avatar" />
+                            <img src={service.useprofileid?.profileimage || './assets/default-avatar.jpg'} alt={service.title} className="user-avatar" />
                             <div>
                               <h3 className="user-name">{service.title}</h3>
                               <p className="user-meta">by {service.freelancer.fullName}</p>
@@ -789,6 +815,7 @@ const Homepage = () => {
         <ContactPopup 
           freelancer={selectedFreelancer}
           onClose={closePopup}
+          currentUser={currentUser}
         />
       )}
     </>
