@@ -173,6 +173,10 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  userprofileimage: { 
+    type: String,
+    required: true 
+  },
   userrating: {
     type: Number,
     required: true,
@@ -807,7 +811,7 @@ app.post("/api/addservice", authenticateToken, upload.array("images"), async (re
       return res.status(404).json({ message: "User profile not found" });
     }
 
-    const comment = new Comment({
+    const service = new Service({
       userid,
       userprofileid: userProfile._id,
       title: req.body.title,
