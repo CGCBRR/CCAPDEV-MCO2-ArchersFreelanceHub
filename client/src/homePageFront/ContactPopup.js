@@ -75,11 +75,11 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
 
         // Debug logging
         console.log('Full freelancer object:', freelancer);
-        console.log('Freelancer freelancerId:', freelancer?.freelancerid);
-        console.log('Freelancer _id:', freelancer?._id);
-        console.log('Freelancer id:', freelancer?.id);
-        console.log('Freelancer userid:', freelancer?.userid);
+        console.log('Freelancer freelancerId:', freelancer?.freelancerId);
         console.log('Freelancer name:', freelancer?.name);
+        console.log('Full user object:', currentUser);
+        console.log('user _id:', currentUser._id);
+        console.log('user id:', currentUser.id);
 
         if (!newComment.trim()) {
             setError('Please enter a comment');
@@ -100,7 +100,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                 usercomment: newComment,
                 userrating: rating,
                 username: currentUser?.username || 'Guest User',
-                userId: currentUser?._id || null
+                userid: currentUser.id
             });
 
             if (response.status === 200 || response.status === 201) {
@@ -281,7 +281,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                 {/* Third Row: Comments Section */}
                 <div className="popup-row">
                     <h3 className="popup-row-title">
-                        <span>💬</span> Reviews & Comments
+                        <span>💬</span> Reviews & Ratings (for this user)
                     </h3>
                     
                     {/* Rating Summary */}
@@ -346,7 +346,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                                 <div key={comment._id || index} className="comment-item">
                                     <div className="comment-header">
                                         <div className="comment-user-info">
-                                            <span className="comment-avatar">👤</span>
+                                            <img src={comment.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={comment.userid.username} className="comment-avatar" />
                                             <span className="comment-user-name">{comment.username}</span>
                                         </div>
                                         <div className="comment-rating">

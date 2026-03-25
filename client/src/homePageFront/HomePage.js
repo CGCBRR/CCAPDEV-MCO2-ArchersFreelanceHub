@@ -302,6 +302,7 @@ const Homepage = () => {
 
     // Get user
     const userStr = localStorage.getItem('user');
+    console.log("Current User: ", userStr)
     if (userStr) {
         setCurrentUser(JSON.parse(userStr));
     }

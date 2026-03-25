@@ -160,6 +160,11 @@ const commentSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  userprofileid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Userprofile",
+    required: true
+  },
   freelancerid: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -172,10 +177,6 @@ const commentSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true
-  },
-  userprofileimage: { 
-    type: String,
-    required: true 
   },
   userrating: {
     type: Number,
@@ -1147,6 +1148,11 @@ app.get('/api/comments/:freelancerId', async (req, res) => {
 app.post('/api/comments', async (req, res) => {
   try {
     const { freelancerid, freelancername, usercomment, userrating, username, userid } = req.body;
+
+    const profile = await UserProfile.findOne({ userid });
+    if (!profile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
     
     // Validate required fields
     if (!freelancerid) {
@@ -1164,7 +1170,8 @@ app.post('/api/comments', async (req, res) => {
     
     // Create new comment
     const newComment = new Comment({
-      userid: userid || new mongoose.Types.ObjectId(), // If no userId, create temporary one
+      userid: userid,
+      userprofileid: profile._id,
       freelancerid: freelancerid,
       freelancername: freelancername,
       username: username || 'Guest User',
