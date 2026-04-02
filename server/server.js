@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require("multer");
+const path = require("path");
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +12,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "../client/public/uploads")));
+
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -76,6 +80,16 @@ const userProfileSchema = new mongoose.Schema({
   profileimage: { 
     type: String 
   },
+  paymentMethods: {
+    type: [String],
+    default: ['Cash']
+  },
+  contactInfo: {
+    facebook: { type: String, default: '' },
+    email: { type: String, default: '' },
+    phone: { type: String, default: '' },
+    other: { type: String, default: '' }
+  },
   totalearned: { 
     type: Number, 
     default: 0 
@@ -102,6 +116,10 @@ const serviceSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, // foreign key
     ref: "User",                          // reference to User collection
     required: true
+  },
+  userprofileid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserProfile"
   },
   title: { type: String, required: true },
   category: { type: String, required: true },
@@ -140,6 +158,70 @@ const projectSchema = new mongoose.Schema({
   projectimages: [{ type: String }]
 });
 
+// Category Schema for Admin Dashboard
+const categorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  icon: {
+    type: String,
+    default: '📁'
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+// Comments Schema
+const commentSchema = new mongoose.Schema({
+  userid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  userprofileid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Userprofile",
+    required: true
+  },
+  freelancerid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  freelancername: {
+    type: String,
+    required: true
+  },
+  username: {
+    type: String,
+    required: true
+  },
+  userrating: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5
+  },
+  usercomment: {
+    type: String,
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+
 // Add the virtual schema Projects to User schema
 // Used to connect yung projects with the same userid as UserProfile (done with mongoose .populate(), research nalang)
 userProfileSchema.virtual("projects", { 
@@ -157,6 +239,37 @@ const User = mongoose.model('User', userSchema);
 const UserProfile = mongoose.model("UserProfile", userProfileSchema);
 const Service = mongoose.model("Service", serviceSchema);
 const Project = mongoose.model("Project", projectSchema);
+const Category = mongoose.model("Category", categorySchema);
+const Comment = mongoose.model("Comment", commentSchema);
+
+// Seed default categories if none exist
+const seedDefaultCategories = async () => {
+  try {
+    const count = await Category.countDocuments();
+    if (count === 0) {
+      console.log('No categories found. Seeding default categories...');
+      const defaultCategories = [
+        { name: 'Visual Arts', icon: '🎨', description: 'Design, illustration, photography' },
+        { name: 'Academic Help', icon: '📚', description: 'Tutoring, research, editing' },
+        { name: 'Video Editing', icon: '🎬', description: 'Production, post-processing' },
+        { name: 'Programming', icon: '💻', description: 'Web, mobile, software' },
+        { name: 'Marketing', icon: '📊', description: 'Social media, SEO, content' },
+        { name: 'Music & Audio', icon: '🎵', description: 'Production, Mixing, Voice-over' }
+      ];
+      await Category.insertMany(defaultCategories);
+      console.log('Default categories seeded successfully!');
+    } else {
+      console.log(`Found ${count} existing categories.`);
+    }
+  } catch (error) {
+    console.error('Error seeding categories:', error);
+  }
+};
+
+// Call the seed function after database connection is established
+setTimeout(() => {
+  seedDefaultCategories();
+}, 1000);
 
 // Middleware to verify token
 const authenticateToken = (req, res, next) => {
@@ -190,6 +303,19 @@ userProfileSchema.pre('save', async function(next) {
   }
   next();
 });
+
+// Helper function to check if user is admin
+const isAdmin = async (userId) => {
+  const user = await User.findById(userId);
+  // List of admin emails
+  const adminEmails = [
+    'carlo_barreo@dlsu.edu.ph',
+    'daniel_rebudiao@dlsu.edu.ph',
+    'francis_balcruz@dlsu.edu.ph',
+    'anna_papa@dlsu.edu.ph'
+  ];
+  return adminEmails.includes(user?.email);
+};
 
 
 
@@ -319,7 +445,15 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
         username: user.username,
         bio: '',
         location: '',
-        website: '',
+        tagline: '',
+        languages: 'English, Filipino',
+        paymentMethods: ['Cash'],
+        contactInfo: {
+          facebook: '',
+          email: user.email,
+          phone: '',
+          other: ''
+        },
         profileimage: null
       });
       await profile.save();
@@ -340,10 +474,9 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
     const profileImageUrl = profile.profileimage 
       ? profile.profileimage.startsWith('http') 
         ? profile.profileimage 
-        : `/uploads/${profile.profileimage}`  // If stored as filename only
-      : '/assets/default-avatar.jpg';  // Default image
+        : `/uploads/${profile.profileimage}`
+      : '/assets/default-avatar.jpg';
 
-    
     res.json({
       email: req.user.email,
       username: profile.username,
@@ -351,11 +484,20 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
       firstname: profile.username?.split('_')[0] || '',
       lastname: profile.username?.split('_')[1] || '',
       bio: profile.bio || 'DLSU student passionate about freelancing.',
-      location: profile.location,
-      website: profile.website,
+      tagline: profile.tagline || '',
+      location: profile.location || 'Manila, Philippines',
+      languages: profile.languages || 'English, Filipino',
+      paymentMethods: profile.paymentMethods || ['Cash'],
+      contactInfo: profile.contactInfo || {
+        facebook: '',
+        email: req.user.email,
+        phone: '',
+        other: ''
+      },
       totalprojects: totalprojects || profile.totalprojects || 0,
       totalearned: totalearned || profile.totalearned || 0,
-      averagerating: parseFloat(averagerating) || profile.averagerating || 0
+      averagerating: parseFloat(averagerating) || profile.averagerating || 0,
+      createdAt: profile.createdAt
     });
   } catch (error) {
     console.error('Profile error:', error);
@@ -424,12 +566,18 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
 app.get('/api/get-services', authenticateToken, async (req, res) => {
   try {
     // Get all users
-    const serviceSchema = await Service.find().populate('userid', 'username');
+    const serviceSchema = await Service.find()
+                          .populate('userid', 'username')
+                          .populate('userprofileid', 'profileimage');
     
     const services = serviceSchema.map(service => ({
       userid: {
         username: service.userid.username,
         _id: service.userid._id
+      },
+      userprofileid: {
+        profileimage: service.userprofileid.profileimage || '/assets/default-avatar.jpg',
+        _id: service.userprofileid?._id || null
       },
       title: service.title,
       category: service.category,
@@ -438,7 +586,7 @@ app.get('/api/get-services', authenticateToken, async (req, res) => {
       pricetype: service.pricetype,
       deliverytime: service.deliverytime,
       experiencelevel: service.experiencelevel,
-      image: []
+      image: service.image.map(img => `http://localhost:5000/${img}`)
     }));
     
     res.json(services);
@@ -465,24 +613,249 @@ app.get('/api/get-my-services', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+
+// ==================== ADMIN CATEGORY MANAGEMENT ENDPOINTS ====================
+
+// *****************************************************************************************************************
+// Admin - Get all categories
+// *****************************************************************************************************************
+app.get('/api/admin/categories', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const categories = await Category.find().sort({ createdAt: -1 });
+    
+    // Get service count for each category
+    const categoriesWithCount = await Promise.all(categories.map(async (category) => {
+      const serviceCount = await Service.countDocuments({ category: category.name });
+      return {
+        _id: category._id,
+        name: category.name,
+        icon: category.icon,
+        description: category.description,
+        serviceCount: serviceCount,
+        createdAt: category.createdAt
+      };
+    }));
+
+    res.json({
+      success: true,
+      data: categoriesWithCount
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Admin - Create new category
+// *****************************************************************************************************************
+app.post('/api/admin/categories', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const { name, icon, description } = req.body;
+
+    // Validate input
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ success: false, message: 'Category name is required' });
+    }
+
+    // Check if category already exists
+    const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+    if (existingCategory) {
+      return res.status(400).json({ success: false, message: 'Category already exists' });
+    }
+
+    // Create new category
+    const category = new Category({
+      name: name.trim(),
+      icon: icon || '📁',
+      description: description || ''
+    });
+
+    await category.save();
+
+    res.json({
+      success: true,
+      message: 'Category created successfully',
+      data: category
+    });
+  } catch (error) {
+    console.error('Error creating category:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Admin - Update category
+// *****************************************************************************************************************
+app.put('/api/admin/categories/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const { id } = req.params;
+    const { name, icon, description } = req.body;
+
+    // Check if category exists
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+
+    // Check if new name conflicts with existing category (excluding current one)
+    if (name && name !== category.name) {
+      const existingCategory = await Category.findOne({ 
+        name: { $regex: new RegExp(`^${name}$`, 'i') },
+        _id: { $ne: id }
+      });
+      if (existingCategory) {
+        return res.status(400).json({ success: false, message: 'Category name already exists' });
+      }
+    }
+
+    // Update category
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      {
+        name: name?.trim() || category.name,
+        icon: icon || category.icon,
+        description: description !== undefined ? description : category.description
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Category updated successfully',
+      data: updatedCategory
+    });
+  } catch (error) {
+    console.error('Error updating category:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Admin - Delete category
+// *****************************************************************************************************************
+app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!await isAdmin(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+    }
+
+    const { id } = req.params;
+
+    // Check if category exists
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+
+    // Check if category is being used by any service
+    const servicesUsingCategory = await Service.countDocuments({ category: category.name });
+    if (servicesUsingCategory > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Cannot delete category. It is used by ${servicesUsingCategory} service(s).` 
+      });
+    }
+
+    // Delete category
+    await Category.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Category deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// *****************************************************************************************************************
+// Public - Get all categories (for frontend dropdowns)
+// *****************************************************************************************************************
+app.get('/api/public/categories', async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    
+    // If no categories in DB, return default list
+    if (categories.length === 0) {
+      const defaultCategories = [
+        { name: 'Visual Arts', icon: '🎨', description: 'Design, illustration, photography' },
+        { name: 'Academic Help', icon: '📚', description: 'Tutoring, research, editing' },
+        { name: 'Video Editing', icon: '🎬', description: 'Production, post-processing' },
+        { name: 'Programming', icon: '💻', description: 'Web, mobile, software' },
+        { name: 'Marketing', icon: '📊', description: 'Social media, SEO, content' },
+        { name: 'Music & Audio', icon: '🎵', description: 'Production, Mixing, Voice-over' }
+      ];
+      return res.json({ success: true, data: defaultCategories });
+    }
+    
+    res.json({ success: true, data: categories });
+  } catch (error) {
+    console.error('Error fetching public categories:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ==================== END ADMIN CATEGORY MANAGEMENT ====================
+
+
+
 // *****************************************************************************************************************
 // Post a Service
 // *****************************************************************************************************************
 // Post Service
-app.post("/api/addservice", authenticateToken, async (req, res) => {
-  const { title, category, description, startingprice, pricetype, deliverytime, experiencelevel, Image } = req.body;
-  const userid = req.user.userId; // get userid from token
-  const service = new Service({ 
-        userid: userid, title: title, category: category, 
-        description: description, startingprice: startingprice, pricetype: pricetype, 
-        deliverytime: deliverytime, experiencelevel: experiencelevel, image: Image });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, "../client/public/uploads")),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
 
-  try {
+app.post("/api/addservice", authenticateToken, upload.array("images"), async (req, res) => {
+  try {  
+    const userid = req.user.userId; // get userid from token
+    const imagePaths = req.files.map(file => `uploads/${file.filename}`);
+
+    const userProfile = await UserProfile.findOne({ userid });
+    if (!userProfile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
+
+    const service = new Service({
+      userid,
+      userprofileid: userProfile._id,
+      title: req.body.title,
+      category: req.body.category,
+      description: req.body.description,
+      startingprice: req.body.startingprice,
+      pricetype: req.body.pricetype,
+      deliverytime: req.body.deliverytime,
+      experiencelevel: req.body.experiencelevel,
+      image: imagePaths, // array of file paths
+    });
+  
     await service.save();
     res.json({ message: "Service posted successfully!" });
   } catch (err) {
     console.error("Error posting service:", err);
-    console.log("Received data:", { userid, title, category, description, startingprice, pricetype, deliverytime, experiencelevel, Image });
     res.status(500).json({ message: "Error posting service. " + err.message });
   }
 });
@@ -494,17 +867,6 @@ app.get("/api/get-hirer-projects", authenticateToken, async (req, res) => {
 
   const projects = await Project.find({ hirerid: userid }).populate("serviceid").populate("userid", "username");
   res.json(projects);
-});
-
-
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Server is running!' });
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
 
 //update profile WIP
@@ -576,6 +938,7 @@ app.get('/api/search-services', authenticateToken, async (req, res) => {
         path: 'userid',
         select: 'username email'
       })
+      .populate('userprofileid', 'profileimage')
       .sort(sortOption)
       .skip(skip)
       .limit(parseInt(limit));
@@ -593,6 +956,10 @@ app.get('/api/search-services', authenticateToken, async (req, res) => {
       
       return {
         _id: service._id,
+        userprofileid: {
+          profileimage: service.userprofileid.profileimage || '/assets/default-avatar.jpg',
+          _id: service.userprofileid?._id || null
+        },
         title: service.title,
         category: service.category,
         description: service.description,
@@ -633,10 +1000,22 @@ app.get('/api/search-services', authenticateToken, async (req, res) => {
   }
 });
 
-// Get unique categories for filter dropdown
+// Get unique categories for filter dropdown (updated to use Category collection)
 app.get('/api/service-categories', authenticateToken, async (req, res) => {
   try {
-    const categories = await Service.distinct('category');
+    // First try to get categories from Category collection
+    const categoriesFromDB = await Category.find().sort({ name: 1 });
+    
+    if (categoriesFromDB.length > 0) {
+      const categoryNames = categoriesFromDB.map(cat => cat.name);
+      return res.json({
+        success: true,
+        data: categoryNames
+      });
+    }
+    
+    // Fallback to getting distinct from services
+    const categoriesFromServices = await Service.distinct('category');
     
     // Ensure we have at least your default categories
     const defaultCategories = [
@@ -649,7 +1028,7 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
     ];
     
     // Combine existing categories with defaults (removing duplicates)
-    const allCategories = [...new Set([...categories, ...defaultCategories])];
+    const allCategories = [...new Set([...categoriesFromServices, ...defaultCategories])];
     
     res.json({
       success: true,
@@ -678,7 +1057,15 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
 // *****************************************************************************************************************
 app.put('/api/update-profile', authenticateToken, async (req, res) => {
   try {
-    const { username, tagline, bio, location, languages } = req.body;
+    const { 
+      username, 
+      tagline, 
+      bio, 
+      location, 
+      languages,
+      paymentMethods,
+      contactInfo 
+    } = req.body;
     const userId = req.user.userId;
 
     // Find and update the user profile
@@ -689,9 +1076,11 @@ app.put('/api/update-profile', authenticateToken, async (req, res) => {
         tagline: tagline,
         bio: bio,
         location: location,
-        languages: languages
+        languages: languages,
+        paymentMethods: paymentMethods,
+        contactInfo: contactInfo
       },
-      { new: true, upsert: true } // upsert: create if doesn't exist
+      { new: true, upsert: true }
     );
 
     // Also update the username in the User collection if needed
@@ -714,4 +1103,179 @@ app.put('/api/update-profile', authenticateToken, async (req, res) => {
       message: 'Server error while updating profile' 
     });
   }
+});
+
+// *****************************************************************************************************************
+// Get Freelancer Contact Info (for Hire Now popup)
+// *****************************************************************************************************************
+app.get('/api/get-freelancer-contact/:userId', authenticateToken, async (req, res) => {
+  try {
+    const freelancerId = req.params.userId;
+    
+    // Find the freelancer's profile
+    const profile = await UserProfile.findOne({ userid: freelancerId })
+      .populate('userid', 'username email');
+    
+    if (!profile) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Freelancer not found' 
+      });
+    }
+
+    // Get the user info
+    const user = await User.findById(freelancerId);
+
+    // Format response
+    res.json({
+      success: true,
+      data: {
+        freelancerId: freelancerId,
+        name: profile.username || user?.username || 'Freelancer',
+        profileimage: profile.profileimage || '/assets/default-avatar.jpg',
+        paymentMethods: profile.paymentMethods || ['Cash'],
+        contactInfo: {
+          facebook: profile.contactInfo?.facebook || '',
+          email: profile.contactInfo?.email || user?.email || '',
+          phone: profile.contactInfo?.phone || '',
+          other: profile.contactInfo?.other || ''
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching freelancer contact:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
+  }
+});
+
+// *****************************************************************************************************************
+// Ratings and Comments
+// *****************************************************************************************************************
+// Get Comments
+app.get('/api/comments/:freelancerId', async (req, res) => {
+  try {
+    console.log('Fetching comments for freelancerId:', req.params.freelancerId);
+    
+    const comments = await Comment.find({
+      freelancerid: req.params.freelancerId
+    }).sort({ createdAt: -1 });
+    
+    console.log('Found comments:', comments.length);
+    res.json(comments);
+  } catch (error) {  // Added 'error' parameter
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ message: 'Error fetching comments', error: error.message });
+  }
+});
+
+// Post Comment
+app.post('/api/comments', async (req, res) => {
+  try {
+    const { freelancerid, freelancername, usercomment, userrating, username, userid } = req.body;
+
+    const profile = await UserProfile.findOne({ userid });
+    if (!profile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
+    
+    // Validate required fields
+    if (!freelancerid) {
+      return res.status(400).json({ message: 'Missing required field: Freelancer Id' });
+    }
+    if (!usercomment) {
+      return res.status(400).json({ message: 'Missing required field: Comment' });
+    }
+    if (!userrating) {
+      return res.status(400).json({ message: 'Missing required field: Rating' });
+    }
+    if (!username) {
+      return res.status(400).json({ message: 'Missing required field: User Name' });
+    }
+    
+    // Create new comment
+    const newComment = new Comment({
+      userid: userid,
+      userprofileid: profile._id,
+      freelancerid: freelancerid,
+      freelancername: freelancername,
+      username: username || 'Guest User',
+      userrating: userrating,
+      usercomment: usercomment
+    });
+    
+    await newComment.save();
+    
+    // Update freelancer's average rating
+    const allComments = await Comment.find({ freelancerid: freelancerid });
+    const averageRating = allComments.reduce((sum, c) => sum + c.userrating, 0) / allComments.length;
+    
+    await UserProfile.findOneAndUpdate(
+      { userid: freelancerid },
+      { averagerating: averageRating }
+    );
+    
+    res.status(201).json({ 
+      message: 'Comment posted successfully', 
+      comment: newComment,
+      averageRating: averageRating
+    });
+  } catch (error) {
+    console.error('Error posting comment:', error);
+    res.status(500).json({ message: 'Error posting comment', error: error.message });
+  }
+});
+
+// Delete comment
+app.delete('/api/comments/:commentId', async (req, res) => {
+  try {
+    const comment = await Comment.findByIdAndDelete(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+    res.json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ message: 'Error deleting comment', error: error.message });
+  }
+});
+
+// Update comment
+app.put('/api/comments/:commentId', async (req, res) => {
+  try {
+    const { comment, rating } = req.body;
+    const updatedComment = await Comment.findByIdAndUpdate(
+      req.params.commentId,
+      { 
+        usercomment: comment, 
+        userrating: rating,
+        updatedAt: Date.now()
+      },
+      { new: true }
+    );
+    
+    if (!updatedComment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+    
+    res.json({ message: 'Comment updated successfully', comment: updatedComment });
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    res.status(500).json({ message: 'Error updating comment', error: error.message });
+  }
+});
+
+// *****************************************************************************************************************
+// DON'T MOVE
+// *****************************************************************************************************************
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is running!' });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

@@ -5,9 +5,11 @@ import "./homePageStyles/main.css"
 import logo2 from './images/logo2.png';
 import profile from "./images/profile.jpg";
 import heroImage from "./images/hero-image.png";
+import ContactPopup from './ContactPopup';
 
 const Homepage = () => {
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [statistics, setStatistics] = useState({
     totalActiveUsers: 0,
@@ -31,6 +33,11 @@ const Homepage = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
   
+  // Popup states
+  const [showContactPopup, setShowContactPopup] = useState(false);
+  const [selectedFreelancer, setSelectedFreelancer] = useState(null);
+  const [loadingContact, setLoadingContact] = useState(false);
+  
   // Pagination
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -38,6 +45,9 @@ const Homepage = () => {
     totalCount: 0,
     hasMore: false
   });
+
+  // Comment States
+  const [currentUser, setCurrentUser] = useState(null);
   
   const navigate = useNavigate();
 
@@ -53,7 +63,6 @@ const Homepage = () => {
   // Search function
   const performSearch = async (page = 1) => {
     if (!searchQuery.trim() && searchCategory === 'all' && !searchFilters.minPrice && !searchFilters.maxPrice) {
-      // If no search criteria, show all services
       setSearchResults([]);
       setSearchPerformed(false);
       return;
@@ -114,14 +123,34 @@ const Homepage = () => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/service-categories", {
+        const response = await axios.get("http://localhost:5000/api/public/categories", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
+          // Store full category objects instead of just names
           setCategories(response.data.data);
+          console.log("Fetched categories:", response.data.data);
         }
       } catch (err) {
         console.error("Error fetching categories:", err);
+        // Fallback to service-categories endpoint
+        try {
+          const token = localStorage.getItem("token");
+          const fallbackResponse = await axios.get("http://localhost:5000/api/service-categories", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (fallbackResponse.data.success) {
+            // For fallback, create objects with default icons
+            const categoryObjects = fallbackResponse.data.data.map(name => ({
+              name: name,
+              icon: '📁',
+              description: 'Explore this category'
+            }));
+            setCategories(categoryObjects);
+          }
+        } catch (fallbackErr) {
+          console.error("Error fetching fallback categories:", fallbackErr);
+        }
       }
     };
     fetchCategories();
@@ -156,19 +185,58 @@ const Homepage = () => {
     });
   };
 
+  // Handle Hire Now button click
+  const handleHireNow = async (freelancerId) => {
+    try {
+      setLoadingContact(true);
+      const token = localStorage.getItem("token");
+      
+      // Fetch freelancer contact details
+      const response = await axios.get(`http://localhost:5000/api/get-freelancer-contact/${freelancerId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        setSelectedFreelancer(response.data.data);
+        setShowContactPopup(true);
+        console.log("Fetched hire now:", response.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching freelancer contact:", err);
+      alert("Failed to load freelancer contact information");
+    } finally {
+      setLoadingContact(false);
+    }
+  };
+
+  // Close popup
+  const closePopup = () => {
+    setShowContactPopup(false);
+    setSelectedFreelancer(null);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
+
+    console.log("3rd useEffect")
+    if (!token) {
+      console.log("Invalid Token")
+      setMessage("Please login first.");
+      navigate("/");
+      return;
+    }
 
     const verifyToken = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/verify-token", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // setMessage(res.data.message);
+        console.log(`Token verified succesfully: ${token}`);
       } catch (err) {
         if (err.response && err.response.status === 401) {
           setMessage("Access denied. Please login first.");
-          navigate("/"); // redirect to login page
+          console.log(`Access denied. Please login first. ${err.response}`);
+          navigate("/");
         } else {
           setMessage("Something went wrong.");
         }
@@ -197,19 +265,21 @@ const Homepage = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStatistics(res.data);
+        console.log("Fetched user statistics:", res.data);
       } catch (err) {
         console.error("Error fetching statistics:", err);
       }
     };
     fetchStatistics();
 
-    // Fetch lists of freelancers ordered by rating, earned, and projects completed (for featured section)
+    // Fetch lists of freelancers ordered by rating, earned, and projects completed
     const fetchFreelancers = async () => {
         try {
         const rest = await axios.get("http://localhost:5000/api/get-freelancers", {
             headers: { Authorization: `Bearer ${token}` }
         });
         setFreelancers(rest.data);
+        console.log("Fetched freelancer:", rest.data);
         } catch (err) {
         console.error("Error fetching freelancers:", err);
         }
@@ -223,29 +293,37 @@ const Homepage = () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         setServices(rest.data);
+        console.log("Fetched services:", rest.data);
         } catch (err) {
         console.error("Error fetching services:", err);
         }
     };
     fetchServices();
+
+    // Get user
+    const userStr = localStorage.getItem('user');
+    console.log("Current User: ", userStr)
+    if (userStr) {
+        setCurrentUser(JSON.parse(userStr));
+    }
   }, []);
 
   const handleSignOut = () => {
-    localStorage.removeItem("token"); // clear JWT
-    navigate("/"); // redirect to login page
+    console.log("Handle Sign-out")
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   const handlePostService = () => {
-    navigate("/postservice"); // redirect to post service page
+    navigate("/postservice");
   };
 
   const openPopup = (service) => {
-    // You can implement a modal to show service details
     console.log("Open service details:", service);
   };
 
   // Determine which services to display
-  const displayedServices = searchPerformed ? searchResults : services;
+  // const displayedServices = searchPerformed ? searchResults : services;
 
   return (
     <>
@@ -269,9 +347,9 @@ const Homepage = () => {
             </div>
           </div>
           <nav className="header-nav">
-            <Link to="/" className="nav-link active">
+            <a href="homepage.html" className="nav-link active">
               Browse
-            </Link>
+            </a>
             <Link to="/my-projects" className="nav-link">
               My Projects
             </Link>
@@ -357,12 +435,9 @@ const Homepage = () => {
                       onChange={(e) => setSearchCategory(e.target.value)}
                     >
                       <option value="all">All Categories</option>
-                      <option value="Visual Arts">🎨 Visual Arts</option>
-                      <option value="Academic Help">📚 Academic Help</option>
-                      <option value="Video Editing">🎬 Video Editing</option>
-                      <option value="Programming">💻 Programming</option>
-                      <option value="Marketing">📊 Marketing</option>
-                      <option value="Music & Audio">🎵 Music & Audio</option>
+                      {categories.map((cat, index) => (
+                        <option key={index} value={cat.name}>{cat.icon} {cat.name}</option>
+                      ))}
                     </select>
 
                     <button 
@@ -477,11 +552,7 @@ const Homepage = () => {
                       <div key={index} className="freelancer-card" onClick={() => openPopup(service)}>
                         <div className="card-header">
                           <div className="user-info">
-                            <img 
-                              src={service.image?.[0] || profile} 
-                              alt={service.freelancer.fullName} 
-                              className="user-avatar" 
-                            />
+                            <img src={service.useprofileid?.profileimage || './assets/default-avatar.jpg'} alt={service.title} className="user-avatar" />
                             <div>
                               <h3 className="user-name">{service.title}</h3>
                               <p className="user-meta">by {service.freelancer.fullName}</p>
@@ -515,17 +586,30 @@ const Homepage = () => {
                         </div>
 
                         <div className="portfolio-grid">
-                          {service.image && service.image.length > 0 && (
-                            <img src={service.image[0]} alt="Work Sample" />
+                          {service.image && service.image.length > 0 ? (
+                            service.image.map((imgPath, i) => (
+                              <img
+                                key={i}
+                                src={imgPath} // prepend server URL if needed
+                                alt={`Work Sample ${i + 1}`}
+                                className="portfolio-img"
+                              />
+                            ))
+                          ) : (
+                            <p>No Work Samples</p>
                           )}
                         </div>
 
                         <div className="card-actions">
-                          <button className="action-btn hire-btn" onClick={(e) => {
-                            e.stopPropagation();
-                            // Your hire logic here
-                          }}>
-                            Hire Now
+                          <button 
+                            className="action-btn hire-btn" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleHireNow(service.freelancer.id);
+                            }}
+                            disabled={loadingContact}
+                          >
+                            {loadingContact ? 'Loading...' : 'Hire Now'}
                           </button>
                         </div> 
                       </div>
@@ -549,7 +633,7 @@ const Homepage = () => {
             </section>
           )}
 
-          {/* EXPLORE CATEGORIES */}
+          {/* EXPLORE CATEGORIES - Dynamic from Database */}
           <section className="categories-section">
             <div className="section-header">
               <div>
@@ -559,59 +643,30 @@ const Homepage = () => {
             </div>
             <div className="categories-wrapper">
               <div className="categories-grid">
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Visual Arts');
-                  setShowFilters(false); // Optional: close filters when clicking category
-                }}>
-                    <div className="category-icon">🎨</div>
-                    <h3>Visual Arts</h3>
-                    <p>Design, illustration, photography</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Academic Help');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">📚</div>
-                    <h3>Academic Help</h3>
-                    <p>Tutoring, research, editing</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Video Editing');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">🎬</div>
-                    <h3>Video Editing</h3>
-                    <p>Production, post-processing</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Programming');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">💻</div>
-                    <h3>Programming</h3>
-                    <p>Web, mobile, software</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Marketing');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">📊</div>
-                    <h3>Marketing</h3>
-                    <p>Social media, SEO, content</p>
-                </button>
-                <button className="category-card" onClick={() => {
-                  setSearchCategory('Music & Audio');
-                  setShowFilters(false);
-                }}>
-                    <div className="category-icon">🎵</div>
-                    <h3>Music & Audio</h3>
-                    <p>Production, Mixing, Voice-over</p>
-                </button>
+                {categories.length > 0 ? (
+                  categories.map((category, index) => (
+                    <button 
+                      key={index}
+                      className="category-card" 
+                      onClick={() => {
+                        setSearchCategory(category.name);
+                        setShowFilters(false);
+                      }}
+                    >
+                      <div className="category-icon">{category.icon || '📁'}</div>
+                      <h3>{category.name}</h3>
+                      <p>{category.description || 'Explore this category'}</p>
+                    </button>
+                  ))
+                ) : (
+                  // Fallback loading state
+                  <div className="loading-categories">Loading categories...</div>
+                )}
               </div>
             </div>
           </section>
 
-          {/* Featured Freelancers - Only show if not searching */}
+          {/* Featured Freelancers */}
           {!searchPerformed && (
             <section className="featured-section">
               <div className="section-header">
@@ -627,7 +682,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={freelancer.profileimage || profile} alt={freelancer.userid.username} className="user-avatar" />
+                                <img src={freelancer.profileimage} alt={freelancer.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{freelancer.firstname} {freelancer.lastname}</h3>
                                     <p className="user-meta">{freelancer.userid.username}</p>
@@ -654,18 +709,22 @@ const Homepage = () => {
                             {freelancer.bio || "No bio available."}
                         </p>
 
-                        <div className="portfolio-grid">
+                        {/* <div className="portfolio-grid">
                             {freelancer.projects.map((project, idx) => (
                                 <img key={idx} src={project.projectimages[0]} alt={"No Project Portfolio"} />
                             ))}
-                        </div>
+                        </div> */}
 
                         <div className="card-actions">
-                            <button className="action-btn hire-btn" onClick={(e) => {
+                            <button 
+                              className="action-btn hire-btn" 
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                // Your hire logic here
-                            }}>
-                                Hire Now
+                                handleHireNow(freelancer.userid._id);
+                              }}
+                              disabled={loadingContact}
+                            >
+                              {loadingContact ? 'Loading...' : 'Hire Now'}
                             </button>
                         </div> 
                     </div>
@@ -674,7 +733,7 @@ const Homepage = () => {
             </section>
           )}
 
-          {/* Featured Services - Only show if not searching */}
+          {/* Featured Services */}
           {!searchPerformed && (
             <section className="featured-section">
               <div className="section-header">
@@ -690,7 +749,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={service.image || profile} alt={service.userid.username} className="user-avatar" />
+                                <img src={service.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={service.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{service.title}</h3>
                                     <p className="user-meta">{service.userid.username}</p>
@@ -718,15 +777,30 @@ const Homepage = () => {
                         </p>
 
                         <div className="portfolio-grid">
-                            <img src={service.image} alt={"No Work Samples"} />
+                          {service.image && service.image.length > 0 ? (
+                            service.image.map((imgPath, i) => (
+                              <img
+                                key={i}
+                                src={imgPath}
+                                alt={`Work Sample ${i + 1}`}
+                                className="portfolio-img"
+                              />
+                            ))
+                          ) : (
+                            <p>No Work Samples</p>
+                          )}
                         </div>
 
                         <div className="card-actions">
-                            <button className="action-btn hire-btn" onClick={(e) => {
+                            <button 
+                              className="action-btn hire-btn" 
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                // Your hire logic here
-                            }}>
-                                Hire Now
+                                handleHireNow(service.userid._id);
+                              }}
+                              disabled={loadingContact}
+                            >
+                              {loadingContact ? 'Loading...' : 'Hire Now'}
                             </button>
                         </div> 
                     </div>
@@ -736,6 +810,15 @@ const Homepage = () => {
           )}
         </main>
       </div>
+
+      {/* Contact Popup */}
+      {showContactPopup && (
+        <ContactPopup 
+          freelancer={selectedFreelancer}
+          onClose={closePopup}
+          currentUser={currentUser}
+        />
+      )}
     </>
   );
 };

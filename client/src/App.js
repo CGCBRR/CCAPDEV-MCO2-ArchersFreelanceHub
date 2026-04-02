@@ -5,16 +5,29 @@ import Homepage from './homePageFront/HomePage';
 import PostService from './postServiceFront/PostService';
 import ProfilePage from './profilePageFront/profilePage';
 import EditPage from './editPageFront/editPage';
+import AdminDashboard from './adminDashboardFront/AdminDashboard';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Update token state if localStorage changes
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    setIsAuthenticated(!!(token && user));
+    
+    if (token && user) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+
+    setLoading(false);
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Router>
@@ -35,6 +48,10 @@ function App() {
         <Route 
           path="/edit-profile" 
           element={isAuthenticated ? <EditPage /> : <Navigate to="/" />} 
+        />
+        <Route 
+          path="/admin-dashboard" 
+          element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/" />} 
         />
       </Routes>
     </Router>
