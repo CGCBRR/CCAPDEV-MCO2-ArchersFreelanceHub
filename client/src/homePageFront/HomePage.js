@@ -8,6 +8,7 @@ import heroImage from "./images/hero-image.png";
 import ContactPopup from './ContactPopup';
 
 const Homepage = () => {
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
@@ -85,7 +86,7 @@ const Homepage = () => {
       if (searchFilters.maxPrice) params.append('maxPrice', searchFilters.maxPrice);
 
       const response = await axios.get(
-        `http://localhost:5000/api/search-services?${params.toString()}`,
+        `${backendURL}/api/search-services?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -123,7 +124,7 @@ const Homepage = () => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/public/categories", {
+        const response = await axios.get(`${backendURL}/api/public/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -136,7 +137,7 @@ const Homepage = () => {
         // Fallback to service-categories endpoint
         try {
           const token = localStorage.getItem("token");
-          const fallbackResponse = await axios.get("http://localhost:5000/api/service-categories", {
+          const fallbackResponse = await axios.get(`${backendURL}/api/service-categories`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (fallbackResponse.data.success) {
@@ -192,7 +193,7 @@ const Homepage = () => {
       const token = localStorage.getItem("token");
       
       // Fetch freelancer contact details
-      const response = await axios.get(`http://localhost:5000/api/get-freelancer-contact/${freelancerId}`, {
+      const response = await axios.get(`${backendURL}/api/get-freelancer-contact/${freelancerId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -228,7 +229,7 @@ const Homepage = () => {
 
     const verifyToken = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/verify-token", {
+        const res = await axios.get(`${backendURL}/api/verify-token`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log(`Token verified succesfully: ${token}`);
@@ -247,7 +248,7 @@ const Homepage = () => {
     // Fetch user profile data 
     const fetchUserProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/get-profile", {
+        const res = await axios.get(`${backendURL}/api/get-profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserProfile(res.data);
@@ -261,7 +262,7 @@ const Homepage = () => {
     // Fetch statistics data
     const fetchStatistics = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/get-statistics", {
+        const res = await axios.get(`${backendURL}/api/get-statistics`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStatistics(res.data);
@@ -275,7 +276,7 @@ const Homepage = () => {
     // Fetch lists of freelancers ordered by rating, earned, and projects completed
     const fetchFreelancers = async () => {
         try {
-        const rest = await axios.get("http://localhost:5000/api/get-freelancers", {
+        const rest = await axios.get(`${backendURL}/api/get-freelancers`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         setFreelancers(rest.data);
@@ -289,7 +290,7 @@ const Homepage = () => {
     // Fetch lists of services
     const fetchServices = async () => {
         try {
-        const rest = await axios.get("http://localhost:5000/api/get-services", {
+        const rest = await axios.get(`${backendURL}/api/get-services`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         setServices(rest.data);
@@ -749,7 +750,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={service.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={service.userid.username} className="user-avatar" />
+                                <img src={service.useprofileid?.profileimage || `${backendURL}/assets/default-avatar.jpg`} alt={service.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{service.title}</h3>
                                     <p className="user-meta">{service.userid.username}</p>

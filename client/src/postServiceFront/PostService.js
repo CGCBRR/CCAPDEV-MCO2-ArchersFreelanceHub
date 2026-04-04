@@ -8,7 +8,7 @@ import logo2 from './images/logo2.png';
 import profile from './images/profile.jpg';
 
 const PostService = () => {
-    const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
   const [message, setMessage] = useState("");
   const [serviceTitle, setserviceTitle] = useState("");
   const [serviceCategory, setServiceCategory] = useState("");
