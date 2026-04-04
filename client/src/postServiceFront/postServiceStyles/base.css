@@ -1,0 +1,104 @@
+/* ========== BASE.CSS ========== */
+:root {
+    /* Primary Colors - DLSU Green Palette */
+    --green-primary: #006937;
+    --green-dark: #004d08;
+    --green-light: #008c47;
+    --green-gradient: linear-gradient(135deg, #006937 0%, #008c47 100%);
+    --green-soft-bg: rgba(0, 105, 55, 0.1);
+    --green-soft-border: rgba(0, 105, 55, 0.2);
+    
+    /* Neutral Colors */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    
+    /* Semantic Colors */
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --text-light: #94a3b8;
+    --border-light: #e2e8f0;
+    --white: #ffffff;
+    
+    /* Status Colors */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    
+    /* Shadows */
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-green: 0 8px 20px rgba(0, 105, 55, 0.15);
+    --shadow-green-hover: 0 12px 25px rgba(0, 105, 55, 0.25);
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-xxl: 32px;
+    --radius-full: 100px;
+    --radius-circle: 50%;
+    
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;     /* fixed height */
+    display: flex;
+    flex-direction :column; /* stack children vertically */
+    align-items: center; /* center horizontally */
+    justify-content :flex-start; /* start from the top */
+
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    line-height: 1.5;
+    background-color: var(--gray-50);
+}
+
+
+/* Utility Classes */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-10);
+}
+
+.required {
+    color: var(--danger);
+    font-size: 14px;
+    margin-left: 2px;
+}
+
+.optional {
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 2px;
+}

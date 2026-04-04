@@ -1,0 +1,65 @@
+/* ========== CTA.CSS ========== */
+/* Call-to-action section */
+
+.cta-section {
+    background: var(--green-gradient);
+    padding: 80px var(--container-padding);
+    text-align: center;
+}
+
+.cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-content h2 {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: var(--space-4);
+    letter-spacing: -1px;
+}
+
+.cta-content p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--space-8);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+}
+
+.cta-primary {
+    padding: 16px 32px;
+    background: var(--white);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--green-primary);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.cta-secondary {
+    padding: 16px 32px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--white);
+    transition: all var(--transition-base);
+}
+
+.cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}

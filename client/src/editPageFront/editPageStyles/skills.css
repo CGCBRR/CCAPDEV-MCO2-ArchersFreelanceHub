@@ -1,0 +1,29 @@
+/* ========== SKILLS.CSS ========== */
+.skills-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-10) var(--space-10);
+}
+
+.skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.skill-tag {
+    padding: 8px 16px;
+    background: var(--green-soft-bg);
+    color: var(--green-primary);
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: var(--radius-full);
+    transition: all 0.2s;
+    cursor: default;
+}
+
+.skill-tag:hover {
+    background: var(--green-primary);
+    color: var(--white);
+    transform: translateY(-2px);
+}
