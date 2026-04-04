@@ -1,0 +1,12 @@
+*.json
+*.ps1
+*.cmd
+*.js
+*.map
+*.map
+/client/node_modules/@babel/helper-module-transforms
+client/node_modules/@babel/helper-member-expression-to-functions/LICENSE
+/client/node_modules/@babel
+/client/node_modules
+*.ts
+/server/node_modules
