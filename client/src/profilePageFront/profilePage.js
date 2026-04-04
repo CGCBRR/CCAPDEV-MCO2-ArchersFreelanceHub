@@ -21,7 +21,7 @@ const ProfilePage = () => {
 
     const verifyToken = async () => {
       try {
-         await axios.get(`${backendURL}/api/verify-token`, {
+         await axios.get(`${backendURL}api/verify-token`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (err) {
@@ -38,7 +38,7 @@ const ProfilePage = () => {
     const fetchUserProfile = async () => {
         setLoading(true);
         try {
-        const res = await axios.get(`${backendURL}/api/get-profile`, {
+        const res = await axios.get(`${backendURL}api/get-profile`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         setUserProfile(res.data);
@@ -68,7 +68,7 @@ const ProfilePage = () => {
     const fetchUserServices = async () => {
         setServicesLoading(true);
         try {
-            const res = await axios.get(`${backendURL}/api/get-my-services`, {
+            const res = await axios.get(`${backendURL}api/get-my-services`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUserServices(res.data);
@@ -117,7 +117,7 @@ const handleDeleteService = async (serviceId) => {
     if (window.confirm("Are you sure you want to delete this service?")) {
         try {
             const token = localStorage.getItem("token");
-            await axios.delete(`${backendURL}/api/delete-service/${serviceId}`, {
+            await axios.delete(`${backendURL}api/delete-service/${serviceId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUserServices(userServices.filter(service => service._id !== serviceId));
@@ -210,7 +210,7 @@ if (!userProfile) {
                     style={{ cursor: "pointer" }}
                 >
                     <img 
-                        src={userProfile?.profileimage || `${backendURL}/assets/default-avatar.jpg`} 
+                        src={userProfile?.profileimage || `${backendURL}assets/default-avatar.jpg`} 
                         alt="Profile" 
                         className="profile-avatar"
                     />
@@ -227,7 +227,7 @@ if (!userProfile) {
                     <div className="profile-header">
                         <div className="profile-avatar-wrapper">
                             <img 
-                                src={userProfile?.profileimage || `${backendURL}/assets/default-avatar.jpg`} 
+                                src={userProfile?.profileimage || `${backendURL}assets/default-avatar.jpg`} 
                                 alt="Profile" 
                                 className="profile-avatar"
                             />
