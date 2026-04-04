@@ -52,7 +52,7 @@ function LoginPage() {
 
     try {
       const endpoint = activeTab === 'login' ? 'login' : 'register';
-      const response = await fetch(`${backendURL}/api/${endpoint}`, {
+      const response = await fetch(`${backendURL}api/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
