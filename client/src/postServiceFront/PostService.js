@@ -8,6 +8,7 @@ import logo2 from './images/logo2.png';
 import profile from './images/profile.jpg';
 
 const PostService = () => {
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
   const [message, setMessage] = useState("");
   const [serviceTitle, setserviceTitle] = useState("");
   const [serviceCategory, setServiceCategory] = useState("");
@@ -25,7 +26,7 @@ const PostService = () => {
     const verifyToken = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/verify-token", {
+        const res = await axios.get(`${backendURL}/api/verify-token`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMessage(""); // clear any previous messages
@@ -46,7 +47,7 @@ const PostService = () => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/public/categories", {
+        const response = await axios.get(`${backendURL}/api/public/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -98,7 +99,7 @@ const PostService = () => {
             formData.append("images", file);
         });
 
-        const res = await axios.post("http://localhost:5000/api/addservice", formData, {
+        const res = await axios.post(`${backendURL}/api/addservice`, formData, {
         headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -142,7 +143,7 @@ const PostService = () => {
     workSamples.forEach((file) => {
         formData.append("images", file);
     });
-    await axios.post("http://localhost:5000/upload", formData, {
+    await axios.post(`${backendURL}/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
   }

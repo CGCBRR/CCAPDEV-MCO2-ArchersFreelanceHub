@@ -124,7 +124,7 @@ const Homepage = () => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/public/categories", {
+        const response = await axios.get(`${backendURL}/api/public/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -137,7 +137,7 @@ const Homepage = () => {
         // Fallback to service-categories endpoint
         try {
           const token = localStorage.getItem("token");
-          const fallbackResponse = await axios.get("http://localhost:5000/api/service-categories", {
+          const fallbackResponse = await axios.get(`${backendURL}/api/service-categories`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (fallbackResponse.data.success) {
@@ -750,7 +750,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={service.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={service.userid.username} className="user-avatar" />
+                                <img src={service.useprofileid?.profileimage || `${backendURL}/assets/default-avatar.jpg`} alt={service.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{service.title}</h3>
                                     <p className="user-meta">{service.userid.username}</p>

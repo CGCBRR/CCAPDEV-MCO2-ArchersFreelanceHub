@@ -6,6 +6,7 @@ import logo2 from './images/logo2.png';
 import profile from './images/profile.jpg';
 
 const EditPage = () => {
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
     const [message, setMessage] = useState("");
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -39,7 +40,7 @@ const EditPage = () => {
 
         const verifyToken = async () => {
             try {
-                await axios.get("http://localhost:5000/api/verify-token", {
+                await axios.get(`${backendURL}/api/verify-token`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } catch (err) {
@@ -56,7 +57,7 @@ const EditPage = () => {
         // Fetch user profile data 
         const fetchUserProfile = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/get-profile", {
+                const res = await axios.get(`${backendURL}/api/get-profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserProfile(res.data);
@@ -131,7 +132,7 @@ const EditPage = () => {
             const token = localStorage.getItem("token");
             
             // Send updated profile data to backend
-            const res = await axios.put("http://localhost:5000/api/update-profile", 
+            const res = await axios.put(`${backendURL}/api/update-profile`, 
                 { 
                     username: profileName,
                     tagline: tagline,

@@ -7,6 +7,7 @@ import profile from "./images/profile.jpg";
 import "../homePageFront/homePageStyles/main.css";
 
 const AdminDashboard = () => {
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
   const [message, setMessage] = useState("");
   const [userProfile, setUserProfile] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -38,7 +39,7 @@ const AdminDashboard = () => {
 
     const verifyToken = async () => {
       try {
-        await axios.get("http://localhost:5000/api/verify-token", {
+        await axios.get(`${backendURL}/api/verify-token`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (err) {
@@ -54,7 +55,7 @@ const AdminDashboard = () => {
 
     const fetchUserProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/get-profile", {
+        const res = await axios.get(`${backendURL}/api/get-profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserProfile(res.data);
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
 
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/admin/categories", {
+        const response = await axios.get(`${backendURL}/api/admin/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -113,7 +114,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/api/admin/categories",
+        `${backendURL}/api/admin/categories`,
         {
           name: newCategoryName.trim(),
           icon: newCategoryIcon,
@@ -130,7 +131,7 @@ const AdminDashboard = () => {
         setNewCategoryDescription("");
         // Refresh categories list
         const fetchCategories = async () => {
-          const res = await axios.get("http://localhost:5000/api/admin/categories", {
+          const res = await axios.get(`${backendURL}/api/admin/categories`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (res.data.success) {
@@ -154,7 +155,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `http://localhost:5000/api/admin/categories/${selectedCategory._id}`,
+        `${backendURL}/api/admin/categories/${selectedCategory._id}`,
         {
           name: editCategoryName.trim(),
           icon: editCategoryIcon,
@@ -169,7 +170,7 @@ const AdminDashboard = () => {
         setSelectedCategory(null);
         // Refresh categories list
         const fetchCategories = async () => {
-          const res = await axios.get("http://localhost:5000/api/admin/categories", {
+          const res = await axios.get(`${backendURL}/api/admin/categories`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (res.data.success) {
@@ -194,7 +195,7 @@ const AdminDashboard = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.delete(
-          `http://localhost:5000/api/admin/categories/${category._id}`,
+          `${backendURL}/api/admin/categories/${category._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -202,7 +203,7 @@ const AdminDashboard = () => {
           alert("Category deleted successfully!");
           // Refresh categories list
           const fetchCategories = async () => {
-            const res = await axios.get("http://localhost:5000/api/admin/categories", {
+            const res = await axios.get(`${backendURL}/api/admin/categories`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -284,7 +285,7 @@ const AdminDashboard = () => {
               style={{ cursor: "pointer" }}
             >
               <img
-                src={userProfile?.profileimage || "http://localhost:5000/assets/default-avatar.jpg"}
+                src={userProfile?.profileimage || `${backendURL}/assets/default-avatar.jpg`}
                 alt="Profile"
               />
               <span className="online-indicator" />
