@@ -26,7 +26,7 @@ const PostService = () => {
     const verifyToken = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`${backendURL}/api/verify-token`, {
+        const res = await axios.get(`${backendURL}api/verify-token`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMessage(""); // clear any previous messages
@@ -47,7 +47,7 @@ const PostService = () => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${backendURL}/api/public/categories`, {
+        const response = await axios.get(`${backendURL}api/public/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -99,7 +99,7 @@ const PostService = () => {
             formData.append("images", file);
         });
 
-        const res = await axios.post(`${backendURL}/api/addservice`, formData, {
+        const res = await axios.post(`${backendURL}api/addservice`, formData, {
         headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -143,7 +143,7 @@ const PostService = () => {
     workSamples.forEach((file) => {
         formData.append("images", file);
     });
-    await axios.post(`${backendURL}/upload`, formData, {
+    await axios.post(`${backendURL}upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
   }
