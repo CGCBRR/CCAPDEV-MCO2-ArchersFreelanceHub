@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import './LoginPage.css';
 
 function LoginPage() {
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
   const [activeTab, setActiveTab] = useState('login');
   const [formData, setFormData] = useState({
     email: '',
@@ -51,7 +52,7 @@ function LoginPage() {
 
     try {
       const endpoint = activeTab === 'login' ? 'login' : 'register';
-      const response = await fetch(`http://localhost:5000/api/${endpoint}`, {
+      const response = await fetch(`${backendURL}api/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
