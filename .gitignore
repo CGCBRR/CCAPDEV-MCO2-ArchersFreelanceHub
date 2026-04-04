@@ -10,3 +10,4 @@ client/node_modules/@babel/helper-member-expression-to-functions/LICENSE
 /client/node_modules
 *.ts
 /server/node_modules
+server/.env
