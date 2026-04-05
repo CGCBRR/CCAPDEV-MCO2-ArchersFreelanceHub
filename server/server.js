@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "https://archersfreelancehubfrontend.onrender.com" }));
+app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../client/public/uploads")));
 
