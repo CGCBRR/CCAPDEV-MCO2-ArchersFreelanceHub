@@ -4,6 +4,7 @@ import './homePageStyles/ContactPopup.css';
 import './homePageStyles/comments.css';
 
 const ContactPopup = ({ freelancer, onClose, currentUser }) => {
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [rating, setRating] = useState(0);
@@ -13,7 +14,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
 
     // Create axios instance with base URL
     const api = axios.create({
-        baseURL: 'http://localhost:5000/api',
+        baseURL: `${backendURL}api`,
         headers: {
             'Content-Type': 'application/json',
         },
@@ -33,7 +34,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
 
             try {
                 console.log('Fetching comments for freelancerId:', freelancerId);
-                const response = await axios.get(`http://localhost:5000/api/comments/${freelancerId}`);
+                const response = await axios.get(`${backendURL}api/comments/${freelancerId}`);
                 setComments(response.data);
                 setError('');
             } catch (err) {
@@ -110,7 +111,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                 setHoverRating(0);
 
                 // Refresh comments list
-                const refreshResponse = await axios.get(`http://localhost:5000/api/comments/${freelancer.freelancerId}`);
+                const refreshResponse = await axios.get(`${backendURL}api/comments/${freelancer.freelancerId}`);
                 setComments(refreshResponse.data);
                 alert('Comment posted successfully!');
             }
@@ -146,7 +147,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                 
                 <div className="popup-header">
                     <img 
-                        src={freelancer.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} 
+                        src={freelancer.profileimage || `${backendURL}assets/default-avatar.jpg`} 
                         alt={freelancer.name}
                         className="popup-avatar"
                     />
@@ -346,7 +347,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                                 <div key={comment._id || index} className="comment-item">
                                     <div className="comment-header">
                                         <div className="comment-user-info">
-                                            <img src={comment.useprofileid?.profileimage || 'http://localhost:5000/assets/default-avatar.jpg'} alt={comment.userid.username} className="comment-avatar" />
+                                            <img src={comment.useprofileid?.profileimage || `${backendURL}assets/default-avatar.jpg`} alt={comment.userid.username} className="comment-avatar" />
                                             <span className="comment-user-name">{comment.username}</span>
                                         </div>
                                         <div className="comment-rating">
