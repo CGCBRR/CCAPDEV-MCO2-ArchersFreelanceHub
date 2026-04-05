@@ -178,6 +178,7 @@ const AboutPage = () => {
                     <li><span className="package-name">cors</span> <span className="package-version">^2.8.5</span></li>
                     <li><span className="package-name">dotenv</span> <span className="package-version">^16.3.1</span></li>
                     <li><span className="package-name">multer</span> <span className="package-version">^2.1.1</span></li>
+                    <li><span className="package-name">cloudinary</span> <span className="package-version">^2.9.0</span></li>
                     <li><span className="package-name">nodemon</span> <span className="package-version">^3.1.14 (dev)</span></li>
                   </ul>
                 </div>
