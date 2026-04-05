@@ -516,12 +516,26 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
 // Get statistics
 app.get('/api/get-statistics', authenticateToken, async (req, res) => {
   try {
-    // You'll need to create these collections or calculate from your data
-    // For now, return mock data
+      // Count active users
+      const totalActiveUsers = await User.countDocuments({}); 
+
+      // Count services
+      const totalServices = await Service.countDocuments({});
+
+      // Compute average rating across all user profiles
+      const result = await UserProfile.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgRating: { $avg: "$averagerating" }
+        }
+      }
+    ]);
+
     res.json({
-      totalActiveUsers: await User.countDocuments(),
-      totalServices: 150, // Replace with actual count
-      averageRating: 4.8 // Replace with actual average
+      totalActiveUsers,
+      totalServices, 
+      result
     });
   } catch (error) {
     console.error('Statistics error:', error);

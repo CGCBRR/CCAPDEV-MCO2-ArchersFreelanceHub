@@ -509,7 +509,7 @@ const Homepage = () => {
                   <div className="stat-divider" />
                   <div className="stat-item">
                     <span className="stat-number">{statistics.totalServices}</span>
-                    <span className="stat-label">Projects Completed</span>
+                    <span className="stat-label">Active Services</span>
                   </div>
                   <div className="stat-divider" />
                   <div className="stat-item">
