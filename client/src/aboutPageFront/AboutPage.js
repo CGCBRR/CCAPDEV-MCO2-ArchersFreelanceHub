@@ -164,8 +164,45 @@ const AboutPage = () => {
             </div>
             </section>
           </div>
-        </main>
 
+            <section className="about-section">
+            <h2>📦 NPM Packages & Third-Party Libraries</h2>
+            <p>This project uses the following open-source packages and libraries:</p>
+            
+            <div className="packages-grid">
+                <div className="packages-category">
+                <h3>Frontend (client/)</h3>
+                <ul className="packages-list">
+                    <li><span className="package-name">react</span> <span className="package-version">^18.2.0</span></li>
+                    <li><span className="package-name">react-dom</span> <span className="package-version">^18.2.0</span></li>
+                    <li><span className="package-name">react-router-dom</span> <span className="package-version">^7.13.1</span></li>
+                    <li><span className="package-name">axios</span> <span className="package-version">^1.13.6</span></li>
+                    <li><span className="package-name">react-dropzone</span> <span className="package-version">^15.0.0</span></li>
+                    <li><span className="package-name">react-scripts</span> <span className="package-version">5.0.1</span></li>
+                </ul>
+                </div>
+                
+                <div className="packages-category">
+                <h3>Backend (server/)</h3>
+                <ul className="packages-list">
+                    <li><span className="package-name">express</span> <span className="package-version">^4.22.1</span></li>
+                    <li><span className="package-name">mongoose</span> <span className="package-version">^7.8.9</span></li>
+                    <li><span className="package-name">bcryptjs</span> <span className="package-version">^2.4.3</span></li>
+                    <li><span className="package-name">jsonwebtoken</span> <span className="package-version">^9.0.3</span></li>
+                    <li><span className="package-name">cors</span> <span className="package-version">^2.8.5</span></li>
+                    <li><span className="package-name">dotenv</span> <span className="package-version">^16.3.1</span></li>
+                    <li><span className="package-name">multer</span> <span className="package-version">^2.1.1</span></li>
+                    <li><span className="package-name">nodemon</span> <span className="package-version">^3.1.14 (dev)</span></li>
+                </ul>
+                </div>
+            </div>
+            
+            <p className="packages-note">
+                Special thanks to the open-source community for their contributions.
+            </p>
+            </section>
+
+        </main>
 
       </div>
     </>
