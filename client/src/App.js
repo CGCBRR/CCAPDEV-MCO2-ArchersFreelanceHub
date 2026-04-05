@@ -6,6 +6,7 @@ import PostService from './postServiceFront/PostService';
 import ProfilePage from './profilePageFront/profilePage';
 import EditPage from './editPageFront/editPage';
 import AdminDashboard from './adminDashboardFront/AdminDashboard';
+import AboutPage from './aboutPageFront/AboutPage'; 
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,6 +53,10 @@ function App() {
         <Route 
           path="/admin-dashboard" 
           element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/" />} 
+        />
+        <Route 
+          path="/about" 
+          element={isAuthenticated ? <AboutPage /> : <Navigate to="/" />} 
         />
       </Routes>
     </Router>

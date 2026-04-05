@@ -169,7 +169,10 @@ const PostService = () => {
             <Link to="/homepage" className="nav-link">
                 Home
             </Link>
-            <Link to="/profile" className="nav-link">
+            <Link to="/about" className="nav-link">
+                About
+            </Link>
+            <Link to="/my-projects" className="nav-link">
                 My Projects
             </Link>
             </nav>
