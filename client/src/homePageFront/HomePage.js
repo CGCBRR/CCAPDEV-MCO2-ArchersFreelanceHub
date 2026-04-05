@@ -86,7 +86,7 @@ const Homepage = () => {
       if (searchFilters.maxPrice) params.append('maxPrice', searchFilters.maxPrice);
 
       const response = await axios.get(
-        `${backendURL}/api/search-services?${params.toString()}`,
+        `${backendURL}api/search-services?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
