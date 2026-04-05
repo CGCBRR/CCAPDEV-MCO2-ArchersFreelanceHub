@@ -1,3 +1,4 @@
+import { v2 as cloudinary } from "cloudinary";
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -270,6 +271,14 @@ const seedDefaultCategories = async () => {
 setTimeout(() => {
   seedDefaultCategories();
 }, 1000);
+
+// Connect to cloudinary storage for image uploads
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 // Middleware to verify token
 const authenticateToken = (req, res, next) => {
@@ -586,7 +595,7 @@ app.get('/api/get-services', authenticateToken, async (req, res) => {
       pricetype: service.pricetype,
       deliverytime: service.deliverytime,
       experiencelevel: service.experiencelevel,
-      image: service.image.map(img => `http://localhost:5000/${img}`)
+      image: service.image
     }));
     
     res.json(services);
@@ -823,16 +832,20 @@ app.get('/api/public/categories', async (req, res) => {
 // Post a Service
 // *****************************************************************************************************************
 // Post Service
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, "../client/public/uploads")),
-  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
-});
-const upload = multer({ storage });
+const upload = multer({ dest: "uploads/" });
 
 app.post("/api/addservice", authenticateToken, upload.array("images"), async (req, res) => {
   try {  
     const userid = req.user.userId; // get userid from token
-    const imagePaths = req.files.map(file => `uploads/${file.filename}`);
+    
+    // Upload each file to Cloudinary
+    const uploadPromises = req.files.map(file =>
+      cloudinary.uploader.upload(file.path, { folder: "services" })
+    );
+    const results = await Promise.all(uploadPromises);
+
+    // Extract secure URLs
+    const imageUrls = results.map(r => r.secure_url);
 
     const userProfile = await UserProfile.findOne({ userid });
     if (!userProfile) {
@@ -849,7 +862,7 @@ app.post("/api/addservice", authenticateToken, upload.array("images"), async (re
       pricetype: req.body.pricetype,
       deliverytime: req.body.deliverytime,
       experiencelevel: req.body.experiencelevel,
-      image: imagePaths, // array of file paths
+      image: imageUrls, // array of file paths
     });
   
     await service.save();
