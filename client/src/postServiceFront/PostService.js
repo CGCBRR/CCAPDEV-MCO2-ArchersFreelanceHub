@@ -377,29 +377,6 @@ const PostService = () => {
                 </div>
             </section>
         </main>
-        {/* FOOTER */}
-        <footer className="footer">
-            <div className="footer-content">
-            <div className="footer-brand">
-                <img
-                src={logo2}
-                alt="Archer's Freelance Hub"
-                className="footer-logo"
-                />
-                <div>
-                <p className="footer-brand-name">Archer's Freelance Hub</p>
-                <span className="badge">DLSU Exclusive</span>
-                </div>
-            </div>
-            <div className="footer-links">
-                <a href="contactpage.html">About</a>
-                <a href="contactpage.html#team-members">Contact</a>
-            </div>
-            <p className="copyright">
-                © 2026 Archer's Freelance Hub. All rights reserved.
-            </p>
-            </div>
-        </footer>
     </>
   );
 };
