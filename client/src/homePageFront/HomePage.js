@@ -691,7 +691,7 @@ const Homepage = () => {
 
                         <div className="stats-row">
                             <div className="stat">
-                                <span className="stat-value">{freelancer.services.length}</span>
+                                <span className="stat-value">{freelancer.totalprojects}</span>
                                 <span className="stat-label">Total Service</span>
                             </div>
                             <div className="stat">
