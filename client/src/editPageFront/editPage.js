@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import './editPageStyles/main.css';
 import logo2 from './images/logo2.png';
-import profile from './images/profile.jpg';
 
 const EditPage = () => {
     const backendURL = process.env.REACT_APP_BACKEND_URL;
@@ -233,7 +232,7 @@ const EditPage = () => {
                             onClick={() => navigate("/my-projects")}
                             style={{ cursor: "pointer" }}
                         >
-                            <img src={userProfile?.profileimage || profile} alt="Profile" />
+                            <img src={userProfile.useprofileid?.profileimage || './assets/default-avatar.jpg'} alt="Profile" />
                             <span className="online-indicator" />
                         </div>
                     </div>
@@ -247,7 +246,7 @@ const EditPage = () => {
                         <div className="profile-header">
                             <div className="profile-avatar-wrapper">
                                 <img 
-                                    src={userProfile?.profileimage || profile} 
+                                    src={userProfile.useprofileid?.profileimage || './assets/default-avatar.jpg'}
                                     alt="Profile" 
                                     className="profile-avatar"
                                 />
