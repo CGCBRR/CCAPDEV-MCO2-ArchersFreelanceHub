@@ -64,6 +64,11 @@ const userProfileSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  serviceid: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Service",
+    default: []
+  },
   username: {
     type: String
   },
@@ -548,25 +553,29 @@ app.get('/api/get-statistics', authenticateToken, async (req, res) => {
 app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
   try {
     // Get all user profiles
-    const profiles = await UserProfile.find().populate('userid', 'username');
+    const profiles = await UserProfile.find()
+      .populate('userid', 'username')
+      .populate('serviceid');
+
     
     const freelancers = profiles.map(profile => {
       const fullName = profile.userid.username || '';
       const [firstname, ...rest] = fullName.split(' ');
       const lastname = rest.join(' ');  // handles multiple words
 
-    // Set default image path if profileimage is null/empty
-    const profileImageUrl = profile.profileimage 
-      ? profile.profileimage.startsWith('http') 
-        ? profile.profileimage 
-        : `/uploads/${profile.profileimage}`  // If stored as filename only
-      : '/assets/default-avatar.jpg';  // Default image
+      // Set default image path if profileimage is null/empty
+      const profileImageUrl = profile.profileimage 
+        ? profile.profileimage.startsWith('http') 
+          ? profile.profileimage 
+          : `/uploads/${profile.profileimage}`  // If stored as filename only
+        : '/assets/default-avatar.jpg';  // Default image
 
       return { 
         userid: {
           username: fullName,
           _id: profile.userid._id
         },
+        serviceid: profile.serviceid || [],
         firstname: firstname || 'First',
         lastname: lastname || 'Last',
         profileimage: profileImageUrl,
