@@ -273,7 +273,7 @@ const EditPage = () => {
                                     />
                                     <div style={{
                                         position: 'absolute', bottom: 0, right: 0,
-                                        background: '#007bff', color: 'white',
+                                        background: '#00753d', color: 'white',
                                         borderRadius: '50%', padding: '6px 8px', fontSize: '12px'
                                     }}>
                                         {isDragActive ? '📂' : '📷'}

@@ -485,10 +485,8 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
 
     // Set default image path if profileimage is null/empty
     const profileImageUrl = profile.profileimage 
-      ? profile.profileimage.startsWith('http') 
-        ? profile.profileimage 
-        : `/uploads/${profile.profileimage}`
-      : '/assets/default-avatar.jpg';
+        ? profile.profileimage
+        : '/assets/default-avatar.jpg';
 
     res.json({
       userid: profile.userid,
@@ -565,10 +563,8 @@ app.get('/api/get-freelancers', authenticateToken, async (req, res) => {
 
       // Set default image path if profileimage is null/empty
       const profileImageUrl = profile.profileimage 
-        ? profile.profileimage.startsWith('http') 
-          ? profile.profileimage 
-          : `/uploads/${profile.profileimage}`  // If stored as filename only
-        : '/assets/default-avatar.jpg';  // Default image
+          ? profile.profileimage
+          : '/assets/default-avatar.jpg';
 
       return { 
         userid: {
