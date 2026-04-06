@@ -552,7 +552,7 @@ const Homepage = () => {
                       <div key={index} className="freelancer-card" onClick={() => openPopup(service)}>
                         <div className="card-header">
                           <div className="user-info">
-                            <img src={service.useprofileid?.profileimage || './assets/default-avatar.jpg'} alt={service.title} className="user-avatar" />
+                            <img src={service.userprofileid?.profileimage || './assets/default-avatar.jpg'} alt={service.title} className="user-avatar" />
                             <div>
                               <h3 className="user-name">{service.title}</h3>
                               <p className="user-meta">by {service.freelancer.fullName}</p>
@@ -704,12 +704,6 @@ const Homepage = () => {
                             {freelancer.bio || "No bio available."}
                         </p>
 
-                        {/* <div className="portfolio-grid">
-                            {freelancer.projects.map((project, idx) => (
-                                <img key={idx} src={project.projectimages[0]} alt={"No Project Portfolio"} />
-                            ))}
-                        </div> */}
-
                         <div className="card-actions">
                             <button 
                               className="action-btn hire-btn" 
@@ -743,7 +737,7 @@ const Homepage = () => {
                     <div key={index} className="freelancer-card" onClick={() => openPopup()}>
                         <div className="card-header">
                             <div className="user-info">
-                                <img src={service.useprofileid?.profileimage || `${backendURL}assets/default-avatar.jpg`} alt={service.userid.username} className="user-avatar" />
+                                <img src={service.userprofileid?.profileimage || `${backendURL}assets/default-avatar.jpg`} alt={service.userid.username} className="user-avatar" />
                                 <div>
                                     <h3 className="user-name">{service.title}</h3>
                                     <p className="user-meta">{service.userid.username}</p>

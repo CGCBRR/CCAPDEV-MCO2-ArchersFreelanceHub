@@ -347,7 +347,7 @@ const ContactPopup = ({ freelancer, onClose, currentUser }) => {
                                 <div key={comment._id || index} className="comment-item">
                                     <div className="comment-header">
                                         <div className="comment-user-info">
-                                            <img src={comment.useprofileid?.profileimage || `${backendURL}assets/default-avatar.jpg`} alt={comment.userid.username} className="comment-avatar" />
+                                            <img src={comment.userprofileid?.profileimage || `${backendURL}assets/default-avatar.jpg`} alt={comment.userid.username} className="comment-avatar" />
                                             <span className="comment-user-name">{comment.username}</span>
                                         </div>
                                         <div className="comment-rating">
