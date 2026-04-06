@@ -329,7 +329,7 @@ if (!userProfile) {
                     <div className="profile-stats">
                         <div className="stat-card">
                             <span className="stat-number" id="projectNum">
-                                {userServices.length() || 0}
+                                {userServices.length || 0}
                             </span>
                             <span className="stat-label">Services</span>
                         </div>
