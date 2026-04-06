@@ -88,7 +88,6 @@ const ProfilePage = () => {
         
         if (!freelancerId) {
             console.error('No freelancer ID found');
-            setError('Unable to load comments');
             return;
         }
 
@@ -96,10 +95,8 @@ const ProfilePage = () => {
             console.log('Fetching comments for freelancerId:', freelancerId);
             const response = await axios.get(`${backendURL}api/comments/${freelancerId}`);
             setComments(response.data);
-            setError('');
         } catch (err) {
             console.error('Error fetching comments:', err);
-            setError('Failed to load comments');
         }
     };
 
