@@ -1233,7 +1233,10 @@ app.get('/api/comments/:freelancerId', async (req, res) => {
     
     const comments = await Comment.find({
       freelancerid: req.params.freelancerId
-    }).sort({ createdAt: -1 });
+    })
+    .populate('userid', 'username')
+    .populate('userprofileid', 'profileimage')
+    .sort({ createdAt: -1 });
     
     console.log('Found comments:', comments.length);
     res.json(comments);
