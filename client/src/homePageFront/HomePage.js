@@ -239,7 +239,7 @@ const Homepage = () => {
           console.log(`Access denied. Please login first. ${err.response}`);
           navigate("/");
         } else {
-          setMessage("Something went wrong.");
+          setMessage("Please Login First.");
         }
       }
     };
