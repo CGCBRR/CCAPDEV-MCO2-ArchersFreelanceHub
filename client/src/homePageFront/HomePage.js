@@ -512,10 +512,6 @@ const Homepage = () => {
                     <span className="stat-label">Active Services</span>
                   </div>
                   <div className="stat-divider" />
-                  {/* <div className="stat-item">
-                    <span className="stat-number">{statistics.averageRating}</span>
-                    <span className="stat-label">Average Rating</span>
-                  </div> */}
                 </div>
               </div>
 
@@ -695,12 +691,8 @@ const Homepage = () => {
 
                         <div className="stats-row">
                             <div className="stat">
-                                <span className="stat-value">${freelancer.totalearned.toFixed(2)}</span>
-                                <span className="stat-label">Earned</span>
-                            </div>
-                            <div className="stat">
-                                <span className="stat-value">{freelancer.totalprojects}</span>
-                                <span className="stat-label">Projects</span>
+                                <span className="stat-value">{freelancer.services.length}</span>
+                                <span className="stat-label">Total Service</span>
                             </div>
                             <div className="stat">
                                 <span className="stat-value">{freelancer.averagerating.toFixed(2)}</span>
