@@ -329,9 +329,9 @@ if (!userProfile) {
                     <div className="profile-stats">
                         <div className="stat-card">
                             <span className="stat-number" id="projectNum">
-                                {userProfile.totalprojects || 0}
+                                {userServices.length() || 0}
                             </span>
-                            <span className="stat-label">Projects</span>
+                            <span className="stat-label">Services</span>
                         </div>
                         <div className="stat-card">
                             <span className="stat-number" id="ratingNum">
