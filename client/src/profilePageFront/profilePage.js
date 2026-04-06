@@ -124,10 +124,6 @@ const handleAdminDashboard = () => {
     navigate("/admin-dashboard");
 };
 
-const handleEditService = (serviceId) => {
-    navigate(`/edit-service/${serviceId}`);
-};
-
 const handleDeleteService = async (serviceId) => {
     if (window.confirm("Are you sure you want to delete this service?")) {
         try {
@@ -458,12 +454,6 @@ if (!userProfile) {
                                                 Experience: {service.experiencelevel}
                                             </div>
                                             <div className="project-footer">
-                                                <button 
-                                                    className="project-action"
-                                                    onClick={() => handleEditService(service._id)}
-                                                >
-                                                    Edit Service
-                                                </button>
                                                 <button 
                                                     className="project-action delete"
                                                     onClick={() => handleDeleteService(service._id)}
