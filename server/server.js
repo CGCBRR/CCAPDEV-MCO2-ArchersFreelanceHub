@@ -637,6 +637,49 @@ app.get('/api/get-my-services', authenticateToken, async (req, res) => {
 });
 
 
+// *****************************************************************************************************************
+// Delete a Service
+// *****************************************************************************************************************
+app.delete('/api/delete-service/:serviceId', authenticateToken, async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const userId = req.user.userId;
+
+    // Find the service first to check if it belongs to the user
+    const service = await Service.findById(serviceId);
+    
+    if (!service) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Service not found' 
+      });
+    }
+
+    // Check if the service belongs to the authenticated user
+    if (service.userid.toString() !== userId) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'You are not authorized to delete this service' 
+      });
+    }
+
+    // Delete the service
+    await Service.findByIdAndDelete(serviceId);
+
+    res.json({ 
+      success: true, 
+      message: 'Service deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while deleting service' 
+    });
+  }
+});
+
+
 
 
 // ==================== ADMIN CATEGORY MANAGEMENT ENDPOINTS ====================
