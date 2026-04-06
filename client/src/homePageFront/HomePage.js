@@ -153,8 +153,6 @@ const Homepage = () => {
         } catch (fallbackErr) {
           console.error("Error fetching fallback categories:", fallbackErr);
         }
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchCategories();
@@ -259,8 +257,6 @@ const Homepage = () => {
         console.log("Fetched user profile:", res.data);
       } catch (err) {
         console.error("Error fetching user profile:", err);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchUserProfile();
@@ -276,8 +272,6 @@ const Homepage = () => {
         console.log("Fetched user statistics:", res.data);
       } catch (err) {
         console.error("Error fetching statistics:", err);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchStatistics();
@@ -293,9 +287,7 @@ const Homepage = () => {
         console.log("Fetched freelancer:", rest.data);
         } catch (err) {
         console.error("Error fetching freelancers:", err);
-        } finally {
-        setIsLoading(false);
-      }
+        }
     };
     fetchFreelancers();
 
@@ -310,9 +302,7 @@ const Homepage = () => {
         console.log("Fetched services:", rest.data);
         } catch (err) {
         console.error("Error fetching services:", err);
-        } finally {
-        setIsLoading(false);
-      }
+        }
     };
     fetchServices();
 
