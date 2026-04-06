@@ -232,7 +232,7 @@ const EditPage = () => {
                             onClick={() => navigate("/my-projects")}
                             style={{ cursor: "pointer" }}
                         >
-                            <img src={userProfile.profileimage || './assets/default-avatar.jpg'} alt="Profile" />
+                            <img src={userProfile?.profileimage || './assets/default-avatar.jpg'} alt="Profile" />
                             <span className="online-indicator" />
                         </div>
                     </div>
@@ -246,7 +246,7 @@ const EditPage = () => {
                         <div className="profile-header">
                             <div className="profile-avatar-wrapper">
                                 <img 
-                                    src={userProfile.profileimage || './assets/default-avatar.jpg'}
+                                    src={userProfile?.profileimage || './assets/default-avatar.jpg'}
                                     alt="Profile" 
                                     className="profile-avatar"
                                 />
