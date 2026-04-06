@@ -57,7 +57,7 @@ const ProfilePage = () => {
         setIsAdmin(adminEmails.includes(res.data.email));
         
         console.log("Fetched user profile:", res.data);
-        await fetchComments(res.data.userid);
+        await fetchComments(res.data.userid?._id || res.data.userid);
         } catch (err) {
             console.error("Error fetching user profile:", err);
             setMessage("Error fetching profile");
