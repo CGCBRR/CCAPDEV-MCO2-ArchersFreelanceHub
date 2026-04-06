@@ -512,10 +512,10 @@ const Homepage = () => {
                     <span className="stat-label">Active Services</span>
                   </div>
                   <div className="stat-divider" />
-                  <div className="stat-item">
+                  {/* <div className="stat-item">
                     <span className="stat-number">{statistics.averageRating}</span>
                     <span className="stat-label">Average Rating</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -678,7 +678,6 @@ const Homepage = () => {
                   <span className="section-tag">FEATURED</span>
                   <h2 className="section-title">Top freelancers this week</h2>
                 </div>
-                <a href="#" className="view-all">View all →</a>
               </div>
 
               <div className="freelancers-grid">
@@ -745,7 +744,6 @@ const Homepage = () => {
                   <span className="section-tag">FEATURED</span>
                   <h2 className="section-title">Top services this week</h2>
                 </div>
-                <a href="#" className="view-all">View all →</a>
               </div>
 
               <div className="freelancers-grid">

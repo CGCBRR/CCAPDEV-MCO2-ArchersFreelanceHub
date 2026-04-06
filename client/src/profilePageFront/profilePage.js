@@ -15,6 +15,8 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate(); 
     const [isAdmin, setIsAdmin] = useState(false);
+    const [comments, setComments] = useState([]);
+    const [rating, setRating] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,9 +82,31 @@ const ProfilePage = () => {
         }
     };
 
+    const fetchComments = async () => {
+        // Get the freelancer ID
+        const freelancerId = userProfile.userid;
+        
+        if (!freelancerId) {
+            console.error('No freelancer ID found');
+            setError('Unable to load comments');
+            return;
+        }
+
+        try {
+            console.log('Fetching comments for freelancerId:', freelancerId);
+            const response = await axios.get(`${backendURL}api/comments/${freelancerId}`);
+            setComments(response.data);
+            setError('');
+        } catch (err) {
+            console.error('Error fetching comments:', err);
+            setError('Failed to load comments');
+        }
+    };
+
     verifyToken();
     fetchUserProfile();
     fetchUserServices();
+    fetchComments();
 }, [navigate]);
 
 const handleSignOut = () => {
@@ -467,25 +491,32 @@ if (!userProfile) {
                 <section className="reviews-section">
                     <div className="section-header">
                         <h2 className="section-title">Client Reviews</h2>
-                        <a href="#" className="view-all" onClick={(e) => e.preventDefault()}>
-                            View all 156 reviews →
-                        </a>
-                    </div>
-
-                    <div className="reviews-grid">
-                        <div className="review-card">
-                            <div className="review-header">
-                                <img src="https://thumbs.dreamstime.com/b/monkey-portrait-2016188.jpg" alt="Client" className="reviewer-avatar"/>
-                                <div>
-                                    <h4 className="reviewer-name">Maria Santos</h4>
-                                    <p className="review-date">March 2024</p>
-                                </div>
-                                <span className="review-rating">★★★★★</span>
-                            </div>
-                            <p className="review-text">"Amazing attention to detail! The crochet pieces exceeded my expectations. Will definitely order again."</p>
-                        </div>
                     </div>
                     
+                    {comments.length > 0 ? (
+                        comments.map((comment, index) => (
+                            <div className="reviews-grid">
+                                <div className="review-card">
+                                    <div className="review-header">
+                                        <img src={comment.useprofileid?.profileimage || `${backendURL}assets/default-avatar.jpg`} alt={comment.userid.username} className="reviewer-avatar"/>
+                                        <div>
+                                            <h4 className="reviewer-name">{comment.username}</h4>
+                                            <p>{formatDate(comment.createdAt)}</p>
+                                        </div>
+                                        <span className="review-rating">
+                                            {'★'.repeat(comment.userrating)}
+                                            {'☆'.repeat(5 - comment.userrating)}
+                                        </span>
+                                    </div>
+                                    <p className="review-text">{comment.usercomment}</p>
+                                </div>
+                            </div>
+                        ))
+                        ) : (
+                            <div className="reviewer-name">
+                                <p>No reviews yet.</p>
+                            </div>
+                        )}
                 </section>
             </main>
         </div>
