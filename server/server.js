@@ -201,7 +201,7 @@ const commentSchema = new mongoose.Schema({
   },
   userprofileid: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Userprofile",
+    ref: "UserProfile",
     required: true
   },
   freelancerid: {
