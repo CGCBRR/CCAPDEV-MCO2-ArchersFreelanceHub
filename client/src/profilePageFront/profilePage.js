@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import "./profilePageStyles/main.css"
 import logo2 from './images/logo2.png';
-import profile from "./images/profile.jpg";
 
 const ProfilePage = () => {
     const backendURL = process.env.REACT_APP_BACKEND_URL;
@@ -35,7 +34,6 @@ const ProfilePage = () => {
         }
       }
     };
-    verifyToken();
 
     const fetchUserProfile = async () => {
         setLoading(true);
@@ -59,6 +57,7 @@ const ProfilePage = () => {
         setIsAdmin(adminEmails.includes(res.data.email));
         
         console.log("Fetched user profile:", res.data);
+        await fetchComments(res.data.userid);
         } catch (err) {
             console.error("Error fetching user profile:", err);
             setMessage("Error fetching profile");
@@ -82,10 +81,7 @@ const ProfilePage = () => {
         }
     };
 
-    const fetchComments = async () => {
-        // Get the freelancer ID
-        const freelancerId = userProfile.userid;
-        
+    const fetchComments = async (freelancerId) => {     
         if (!freelancerId) {
             console.error('No freelancer ID found');
             return;
@@ -103,7 +99,6 @@ const ProfilePage = () => {
     verifyToken();
     fetchUserProfile();
     fetchUserServices();
-    fetchComments();
 }, [navigate]);
 
 const handleSignOut = () => {
