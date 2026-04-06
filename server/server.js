@@ -14,7 +14,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-
 const app = express();
 
 // Middleware
@@ -1148,9 +1147,10 @@ app.put('/api/update-profile', authenticateToken, upload.single('profileimage'),
       contactInfo
     };
 
-    // If a new image was uploaded, save the Cloudinary URL
     if (req.file) {
-      updateData.profileimage = req.file.path; // Cloudinary returns the full URL in req.file.path
+        // Manually upload to Cloudinary like addservice does
+        const result = await cloudinary.uploader.upload(req.file.path, { folder: 'profile-images' });
+        updateData.profileimage = result.secure_url;
     }
 
     const updatedProfile = await UserProfile.findOneAndUpdate(
