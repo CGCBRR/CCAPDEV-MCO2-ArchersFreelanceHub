@@ -57,7 +57,6 @@ const ProfilePage = () => {
         setIsAdmin(adminEmails.includes(res.data.email));
         
         console.log("Fetched user profile:", res.data);
-        await fetchComments(res.data.userid?._id || res.data.userid);
         } catch (err) {
             console.error("Error fetching user profile:", err);
             setMessage("Error fetching profile");
@@ -74,6 +73,7 @@ const ProfilePage = () => {
             });
             setUserServices(res.data);
             console.log("Fetched user services:", res.data);
+            await fetchComments(res.data.userid?._id || res.data.userprofileid);
         } catch (err) {
             console.error("Error fetching user services:", err);
         } finally {
