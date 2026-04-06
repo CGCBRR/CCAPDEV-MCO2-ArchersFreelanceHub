@@ -948,7 +948,7 @@ app.get("/api/get-hirer-projects", authenticateToken, async (req, res) => {
   res.json(projects);
 });
 
-//update profile WIP
+//update profile
 app.post('/api/editProfile', async (req, res) => {
   await User.findOneAndUpdate(
     { userid: req.params.userid },
@@ -1134,40 +1134,35 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
 // *****************************************************************************************************************
 // Update User Profile
 // *****************************************************************************************************************
-app.put('/api/update-profile', authenticateToken, async (req, res) => {
+app.put('/api/update-profile', authenticateToken, upload.single('profileimage'), async (req, res) => {
   try {
-    const { 
-      username, 
-      tagline, 
-      bio, 
-      location, 
-      languages,
-      paymentMethods,
-      contactInfo 
-    } = req.body;
+    const { username, tagline, bio, location, languages } = req.body;
+    const paymentMethods = JSON.parse(req.body.paymentMethods);
+    const contactInfo = JSON.parse(req.body.contactInfo);
     const userId = req.user.userId;
 
-    // Find and update the user profile
+    const updateData = {
+      username,
+      tagline,
+      bio,
+      location,
+      languages,
+      paymentMethods,
+      contactInfo
+    };
+
+    // If a new image was uploaded, save the Cloudinary URL
+    if (req.file) {
+      updateData.profileimage = req.file.path; // Cloudinary returns the full URL in req.file.path
+    }
+
     const updatedProfile = await UserProfile.findOneAndUpdate(
       { userid: userId },
-      { 
-        username: username,
-        tagline: tagline,
-        bio: bio,
-        location: location,
-        languages: languages,
-        paymentMethods: paymentMethods,
-        contactInfo: contactInfo
-      },
+      updateData,
       { new: true, upsert: true }
     );
 
-    // Also update the username in the User collection if needed
-    await User.findByIdAndUpdate(
-      userId,
-      { username: username },
-      { new: true }
-    );
+    await User.findByIdAndUpdate(userId, { username }, { new: true });
 
     res.json({
       success: true,

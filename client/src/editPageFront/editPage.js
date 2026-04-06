@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useDropzone } from 'react-dropzone';
 import './editPageStyles/main.css';
 import logo2 from './images/logo2.png';
 
@@ -16,6 +17,8 @@ const EditPage = () => {
     const [userBio, setUserBio] = useState("");
     const [location, setLocation] = useState("");
     const [languages, setLanguages] = useState("");
+    const [profileImage, setProfileImage] = useState(null);
+    const [profileImagePreview, setProfileImagePreview] = useState(null);
     
     // Payment Methods
     const [paymentMethods, setPaymentMethods] = useState({
@@ -117,11 +120,24 @@ const EditPage = () => {
         });
     };
 
+    const onDrop = (acceptedFiles) => {
+        const file = acceptedFiles[0];
+        if (file) {
+            setProfileImage(file);
+            setProfileImagePreview(URL.createObjectURL(file)); // local preview
+        }
+    };
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: { 'image/*': [] },
+        maxFiles: 1
+    });
+
     // Handles profile edit saving
     const handleEditProfile = async (e) => {
         e.preventDefault();
 
-        // Convert payment methods object to array
         const selectedPaymentMethods = [];
         if (paymentMethods.cash) selectedPaymentMethods.push('Cash');
         if (paymentMethods.gcash) selectedPaymentMethods.push('GCash');
@@ -129,20 +145,23 @@ const EditPage = () => {
 
         try {
             const token = localStorage.getItem("token");
-            
-            // Send updated profile data to backend
-            const res = await axios.put(`${backendURL}api/update-profile`, 
-                { 
-                    username: profileName,
-                    tagline: tagline,
-                    bio: userBio,
-                    location: location,
-                    languages: languages,
-                    paymentMethods: selectedPaymentMethods,
-                    contactInfo: contactInfo
-                },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+
+            const formData = new FormData();
+            formData.append('username', profileName);
+            formData.append('tagline', tagline);
+            formData.append('bio', userBio);
+            formData.append('location', location);
+            formData.append('languages', languages);
+            formData.append('paymentMethods', JSON.stringify(selectedPaymentMethods));
+            formData.append('contactInfo', JSON.stringify(contactInfo));
+            if (profileImage) formData.append('profileimage', profileImage);
+
+            const res = await axios.put(`${backendURL}api/update-profile`, formData, {
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
             if (res.data.success) {
                 alert("Successfully updated your profile!");
@@ -150,7 +169,7 @@ const EditPage = () => {
             }
         } catch (err) {
             console.error("Error updating profile:", err);
-            setMessage(err.response?.data?.message || "Something went wrong with editing the profile");
+            setMessage(err.response?.data?.message || "Something went wrong");
         }
     };
 
@@ -245,11 +264,21 @@ const EditPage = () => {
                         
                         <div className="profile-header">
                             <div className="profile-avatar-wrapper">
-                                <img 
-                                    src={userProfile?.profileimage || './assets/default-avatar.jpg'}
-                                    alt="Profile" 
-                                    className="profile-avatar"
-                                />
+                                <div {...getRootProps()} style={{ cursor: 'pointer', position: 'relative' }}>
+                                    <input {...getInputProps()} />
+                                    <img 
+                                        src={profileImagePreview || userProfile?.profileimage || './assets/default-avatar.jpg'}
+                                        alt="Profile" 
+                                        className="profile-avatar"
+                                    />
+                                    <div style={{
+                                        position: 'absolute', bottom: 0, right: 0,
+                                        background: '#007bff', color: 'white',
+                                        borderRadius: '50%', padding: '6px 8px', fontSize: '12px'
+                                    }}>
+                                        {isDragActive ? '📂' : '📷'}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
