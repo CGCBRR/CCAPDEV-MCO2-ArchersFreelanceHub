@@ -39,7 +39,7 @@ const EditPage = () => {
 
         const verifyToken = async () => {
             try {
-                await axios.get(`${backendURL}/api/verify-token`, {
+                await axios.get(`${backendURL}api/verify-token`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } catch (err) {
@@ -56,7 +56,7 @@ const EditPage = () => {
         // Fetch user profile data 
         const fetchUserProfile = async () => {
             try {
-                const res = await axios.get(`${backendURL}/api/get-profile`, {
+                const res = await axios.get(`${backendURL}api/get-profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserProfile(res.data);
@@ -131,7 +131,7 @@ const EditPage = () => {
             const token = localStorage.getItem("token");
             
             // Send updated profile data to backend
-            const res = await axios.put(`${backendURL}/api/update-profile`, 
+            const res = await axios.put(`${backendURL}api/update-profile`, 
                 { 
                     username: profileName,
                     tagline: tagline,
