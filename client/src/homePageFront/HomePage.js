@@ -122,7 +122,6 @@ const Homepage = () => {
   // Fetch categories for filter dropdown
   useEffect(() => {
     const fetchCategories = async () => {
-      setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`${backendURL}api/public/categories`, {
@@ -248,7 +247,6 @@ const Homepage = () => {
 
     // Fetch user profile data 
     const fetchUserProfile = async () => {
-      setIsLoading(true);
       try {
         const res = await axios.get(`${backendURL}api/get-profile`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -263,7 +261,6 @@ const Homepage = () => {
 
     // Fetch statistics data
     const fetchStatistics = async () => {
-      setIsLoading(true);
       try {
         const res = await axios.get(`${backendURL}api/get-statistics`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -278,7 +275,6 @@ const Homepage = () => {
 
     // Fetch lists of freelancers ordered by rating, earned, and projects completed
     const fetchFreelancers = async () => {
-      setIsLoading(true);
         try {
         const rest = await axios.get(`${backendURL}api/get-freelancers`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -293,7 +289,6 @@ const Homepage = () => {
 
     // Fetch lists of services
     const fetchServices = async () => {
-      setIsLoading(true);
         try {
         const rest = await axios.get(`${backendURL}api/get-services`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -328,13 +323,8 @@ const Homepage = () => {
     console.log("Open service details:", service);
   };
 
-  if (isLoading) {
-    return (
-        <div className="loading-container">
-            <div className="loading-spinner">Logging in...</div>
-        </div>
-    );
-}
+  // Determine which services to display
+  // const displayedServices = searchPerformed ? searchResults : services;
 
   return (
     <>
