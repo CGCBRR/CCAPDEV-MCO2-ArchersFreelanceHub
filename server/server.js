@@ -486,6 +486,7 @@ app.get('/api/get-profile', authenticateToken, async (req, res) => {
       : '/assets/default-avatar.jpg';
 
     res.json({
+      userid: profile.userid,
       email: req.user.email,
       username: profile.username,
       profileimage: profileImageUrl,

@@ -55,7 +55,7 @@ const ProfilePage = () => {
             'anna_papa@dlsu.edu.ph'
         ];
         setIsAdmin(adminEmails.includes(res.data.email));
-        
+        await fetchComments(res.data.userid?._id || res.data.userid);
         console.log("Fetched user profile:", res.data);
         } catch (err) {
             console.error("Error fetching user profile:", err);
@@ -73,7 +73,6 @@ const ProfilePage = () => {
             });
             setUserServices(res.data);
             console.log("Fetched user services:", res.data);
-            await fetchComments(res.data.userid?._id || res.data.userprofileid);
         } catch (err) {
             console.error("Error fetching user services:", err);
         } finally {
