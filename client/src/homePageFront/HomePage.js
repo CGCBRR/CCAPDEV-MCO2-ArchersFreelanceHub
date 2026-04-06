@@ -767,7 +767,7 @@ const Homepage = () => {
 
                         <div className="stats-row">
                             <div className="stat">
-                                <span className="stat-value">₱{service.startingprice.toFixed(2)}</span>
+                                <span className="stat-value">${service.startingprice.toFixed(2)}</span>
                                 <span className="stat-label">Price</span>
                             </div>
                             <div className="stat">
