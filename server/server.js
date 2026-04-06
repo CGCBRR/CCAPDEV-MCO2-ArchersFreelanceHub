@@ -1131,9 +1131,8 @@ app.get('/api/service-categories', authenticateToken, async (req, res) => {
 // Update User Profile
 // *****************************************************************************************************************
 app.put('/api/update-profile', authenticateToken, upload.single('profileimage'), async (req, res) => {
-  console.log('Uploaded file:', req.file);
-  
   try {
+    console.log('Uploaded file:', req.file);
     const { username, tagline, bio, location, languages } = req.body;
     const paymentMethods = JSON.parse(req.body.paymentMethods);
     const contactInfo = JSON.parse(req.body.contactInfo);
